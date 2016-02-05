@@ -19,6 +19,7 @@ var parseDate = d3.time.format("%d-%b-%y").parse;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+// awareness visualization
 var baryMap;
 
 var interactions = [{
@@ -87,7 +88,7 @@ $(document).ready(function () {
         value: "",
     };
 
-    createVisualizationfromQueryList([query]);
+    createVisualizationfromQueryList(interactions[0].query);
 
 });
 
