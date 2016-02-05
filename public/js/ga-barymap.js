@@ -9,7 +9,7 @@ var runningTime = "Running_Time_min";
 var tomatoRating = "Rotten_Tomatoes_Rating";
 var imdbvotes = "IMDB_Votes";
 
-var baryVertices = [gross, budget, imdbvotes, tomatoRating];
+var baryVertices = [gross, budget, imdbvotes, tomatoRating, runningTime];
 
 var width = 0;
 
@@ -19,58 +19,28 @@ var parseDate = d3.time.format("%d-%b-%y").parse;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+var colorscale = d3.scale.category10();
+
 // awareness visualization
 var baryMap;
 
+// user interactions
 var interactions = [{
     query: [{
         index: budget,
-        value: [60000000, 320000000],
-        operator: "range",
-        logic: "CLEAN"
-    }, {
-        index: gross,
-        value: [2000000000, 3000000000],
-        operator: "range",
-        logic: "AND"
-
-    }]
-}, {
-    query: [{
-        index: ratings,
-        value: [8, 10],
+        value: [200000000, 320000000],
         operator: "range",
         logic: "CLEAN"
     }]
 }, {
     query: [{
-        index: ratings,
-        value: [0, 4],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: budget,
-        value: [10000000, 20000000],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: ratings,
-        value: [2, 5, 10],
-        operator: "in",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: budget,
-        value: [0, 200000000],
+        index: tomatoRating,
+        value: [95, 100],
         operator: "range",
         logic: "CLEAN"
     }]
 }];
+
 
 $(document).ready(function () {
 
@@ -88,7 +58,8 @@ $(document).ready(function () {
         value: "",
     };
 
-    createVisualizationfromQueryList(interactions[0].query);
+    createVisualizationfromQueryList([query]);
+
 
 });
 
@@ -116,6 +87,33 @@ function createVisualizationfromQueryList(queryList) {
 
         baryMap.createMap();
 
+        createUserfromQueryList(interactions[0].query, 1);
+
+        createUserfromQueryList(interactions[1].query, 2);
+
+
+    });
+
+}
+
+function createUserfromQueryList(queryList, user) {
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getMovies",
+        data: {
+            data: queryList
+        }
+
+    }).done(function (data) {
+
+        data = JSON.parse(data);
+
+        console.log(data);
+
+        baryMap.createUser(data, user);
+
     });
 
 }
@@ -134,8 +132,8 @@ function BaryMap(options) {
 
     for (var i = 0; i < _self.data.length; i++) {
 
-        for (var j= 0; j < _self.cols.length; j++) {
-            
+        for (var j = 0; j < _self.cols.length; j++) {
+
             var key = _self.cols[j];
 
             if (key in _self.dataMin) {
@@ -143,52 +141,133 @@ function BaryMap(options) {
                     _self.dataMin[key] = _self.data[i]["_id"][key];
                 }
             } else {
-                _self.dataMin[key] = _self.data[i]["_id"][key]? _self.data[i]["_id"][key]:Infinity;
+                _self.dataMin[key] = _self.data[i]["_id"][key] ? _self.data[i]["_id"][key] : Infinity;
             }
-            
+
             if (key in _self.dataMax) {
                 if (_self.dataMax[key] < _self.data[i]["_id"][key]) {
                     _self.dataMax[key] = _self.data[i]["_id"][key];
                 }
             } else {
-                _self.dataMax[key] = _self.data[i]["_id"][key]? _self.data[i]["_id"][key]:-Infinity;
+                _self.dataMax[key] = _self.data[i]["_id"][key] ? _self.data[i]["_id"][key] : -Infinity;
             }
 
         }
     }
-    
-    _self.dataTrans = new Array(_self.data.length); 
-    
+
+    _self.dataTrans = new Array(_self.data.length);
+
     for (var i = 0; i < _self.data.length; i++) {
 
-        var sum = 0; 
-        
+        var sum = 0;
+
         _self.dataTrans[i] = {};
-        
-        for (var j= 0; j < _self.cols.length; j++) {
-            
+
+        for (var j = 0; j < _self.cols.length; j++) {
+
             var key = _self.cols[j];
-            
+
             if (_self.data[i]["_id"][key] == null)
                 _self.data[i]["_id"][key] = _self.dataMin[key];
-            
-            _self.dataTrans[i][key] = (_self.data[i]["_id"][key] - _self.dataMin[key])/(_self.dataMax[key] - _self.dataMin[key]);
-            
+
+            _self.dataTrans[i][key] = (_self.data[i]["_id"][key] - _self.dataMin[key]) / (_self.dataMax[key] - _self.dataMin[key]);
+
             sum += _self.dataTrans[i][key];
 
         }
-        
-        for (var j= 0; j < _self.cols.length; j++) {
-            
+
+        for (var j = 0; j < _self.cols.length; j++) {
+
             var key = _self.cols[j];
-            
-            _self.dataTrans[i][key] = _self.dataTrans[i][key]/sum;
+
+            _self.dataTrans[i][key] = _self.dataTrans[i][key] / sum;
 
         }
-        
+
     }
-    
+
     console.log(_self.dataTrans);
+}
+
+
+BaryMap.prototype.transform = function (data) {
+
+    var _self = this;
+
+    var dataTrans = new Array(data.length);
+
+    for (var i = 0; i < data.length; i++) {
+
+        var sum = 0;
+
+        dataTrans[i] = {};
+
+        for (var j = 0; j < _self.cols.length; j++) {
+
+            var key = _self.cols[j];
+
+            if (data[i]["_id"][key] == null)
+                data[i]["_id"][key] = _self.dataMin[key];
+
+            dataTrans[i][key] = (data[i]["_id"][key] - _self.dataMin[key]) / (_self.dataMax[key] - _self.dataMin[key]);
+
+            sum += dataTrans[i][key];
+
+        }
+
+        for (var j = 0; j < _self.cols.length; j++) {
+
+            var key = _self.cols[j];
+
+            dataTrans[i][key] = dataTrans[i][key] / sum;
+
+        }
+
+    }
+
+    console.log(dataTrans);
+
+    return dataTrans;
+}
+
+BaryMap.prototype.createUser = function (data, user) {
+
+    var _self = this;
+
+    _self.tempData = _self.transform(data);
+
+    for (var i = 0; i < _self.tempData.length; i++) {
+
+        _self.tempData[i].x = 0;
+        _self.tempData[i].y = 0;
+
+        for (var j = 0; j < _self.cols.length; j++) {
+
+            var key = _self.cols[j];
+            _self.tempData[i].x += _self.tempData[i][key] * _self.vertices[j][0];
+            _self.tempData[i].y += _self.tempData[i][key] * _self.vertices[j][1];
+
+        }
+
+    }
+
+    var customHull = d3.geom.hull();
+    customHull.x(function (d) {
+        return d.x;
+    });
+    customHull.y(function (d) {
+        return d.y;
+    });
+
+    var hull = _self.hull = _self.container.append("path").attr("class", "hull");
+
+    _self.hull.datum(customHull(_self.tempData)).attr("d", function (d) {
+        console.log(d);
+        return "M" + d.map(function (n) {
+            return [n.x, n.y]
+        }).join("L") + "Z";
+    }).style("fill", colorscale(user)).style("fill-opacity", 0.25);
+
 }
 
 BaryMap.prototype.createMap = function () {
@@ -207,22 +286,22 @@ BaryMap.prototype.createMap = function () {
     _self.container = svg.append('g');
 
     _self.vertices = polygon(0, 0, radius, sides);
-    
+
     //transform data into x, y
-     
+
     for (var i = 0; i < _self.dataTrans.length; i++) {
 
         _self.dataTrans[i].x = 0;
         _self.dataTrans[i].y = 0;
-        
-        for (var j= 0; j < _self.cols.length; j++) {
-            
+
+        for (var j = 0; j < _self.cols.length; j++) {
+
             var key = _self.cols[j];
-            _self.dataTrans[i].x += _self.dataTrans[i][key]*_self.vertices[j][0];
-            _self.dataTrans[i].y += _self.dataTrans[i][key]*_self.vertices[j][1];
-            
+            _self.dataTrans[i].x += _self.dataTrans[i][key] * _self.vertices[j][0];
+            _self.dataTrans[i].y += _self.dataTrans[i][key] * _self.vertices[j][1];
+
         }
-        
+
     }
 
     for (var i = 0; i < _self.vertices.length; i++) {
@@ -244,7 +323,7 @@ BaryMap.prototype.createMap = function () {
             .attr('r', 8)
             .attr('cx', _self.vertices[i][0])
             .attr('cy', _self.vertices[i][1])
-            .attr('fill', '#9ecae1');
+            .attr('fill', '#4292c6');
 
         _self.container.append('text')
             .attr('x', function () {
@@ -263,19 +342,20 @@ BaryMap.prototype.createMap = function () {
                 }
             })
             .attr('fill', '#222')
-            .text(_self.cols[i]);
-
+            .style('font-size', "14px")
+            .text(_self.cols[i].replace(/_/g, " "));
+ 
     }
-    
-     for (var i = 0; i < _self.dataTrans.length; i++) {
+
+    for (var i = 0; i < _self.dataTrans.length; i++) {
 
         _self.container.append('circle')
             .attr('r', 3)
             .attr('cx', _self.dataTrans[i].x)
             .attr('cy', _self.dataTrans[i].y)
             .attr('fill', '#666')
-            .attr('fill-opacity', 0.5);
-     }
+            .attr('fill-opacity', 0.3);
+    }
 
     /* GIVEN x and y, the radius and the number of polygon sides RETURNS AN ARRAY OF VERTICE COORDINATES */
     function polygon(x, y, radius, sides) {

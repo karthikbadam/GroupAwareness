@@ -205,7 +205,7 @@ $(document).ready(function () {
 
     createVisualizationfromQueryList([query]);
 
-    createDelay(index);
+    //createDelay(index);
 
 });
 
@@ -216,7 +216,7 @@ function createDelay(index) {
     setTimeout(function () {
         createVisualizationfromQueryList(interactions[index].query);
         if (index < interactions.length-1) {
-            createDelay(index + 1);
+            //createDelay(index + 1);
         }
 
     }, delay);
