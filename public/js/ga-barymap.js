@@ -9,7 +9,7 @@ var runningTime = "Running_Time_min";
 var tomatoRating = "Rotten_Tomatoes_Rating";
 var imdbvotes = "IMDB_Votes";
 
-var baryVertices = [gross, budget, imdbvotes, tomatoRating, runningTime];
+var baryVertices = [gross, budget, tomatoRating, imdbvotes, runningTime, sales];
 
 var width = 0;
 
@@ -27,10 +27,10 @@ var baryMap;
 // user interactions
 var interactions = [{
     query: [{
-        index: budget,
-        value: [200000000, 320000000],
+        index: gross,
+        value: [00000000, 300000000],
         operator: "range",
-        logic: "CLEAN"
+        logic: "NOT"
     }]
 }, {
     query: [{
