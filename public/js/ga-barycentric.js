@@ -6,4 +6,6 @@ function BaryMap (options) {
     // data-driven barymap
     
     // user-driven barymap
+    
+    // copy from main file
 }
