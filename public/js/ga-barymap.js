@@ -28,7 +28,7 @@ var baryMap;
 var interactions = [{
     query: [{
         index: gross,
-        value: [00000000, 300000000],
+        value: [0, 300000000],
         operator: "range",
         logic: "NOT"
     }]
