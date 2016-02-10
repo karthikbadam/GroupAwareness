@@ -5,11 +5,16 @@ function ParallelCoord(options) {
     _self.data = options.data;
 
     _self.cols = options.cols;
-    
-    _self.margin = {top: 30, right: 10, bottom: 10, left: 10};
-    
+
+    _self.margin = {
+        top: 30,
+        right: 10,
+        bottom: 10,
+        left: 10
+    };
+
     _self.width = width - margin.left - margin.right;
-    
+
     _self.height = height - margin.top - margin.bottom;
 
 }
@@ -26,142 +31,107 @@ ParallelCoord.prototype.createUser = function (data, user) {
 
     var _self = this;
 
-    _self.tempData = _self.transform(data);
-
-    for (var i = 0; i < _self.tempData.length; i++) {
-
-        _self.tempData[i].x = 0;
-        _self.tempData[i].y = 0;
-
-        for (var j = 0; j < _self.cols.length; j++) {
-
-            var key = _self.cols[j];
-            _self.tempData[i].x += _self.tempData[i][key] * _self.vertices[j][0];
-            _self.tempData[i].y += _self.tempData[i][key] * _self.vertices[j][1];
-
-        }
-
-    }
-
-    var customHull = d3.geom.hull();
-    customHull.x(function (d) {
-        return d.x;
-    });
-    customHull.y(function (d) {
-        return d.y;
-    });
-
-    var hull = _self.hull = _self.container.append("path").attr("class", "hull");
-
-    _self.hull.datum(customHull(_self.tempData)).attr("d", function (d) {
-        console.log(d);
-        return "M" + d.map(function (n) {
-            return [n.x, n.y]
-        }).join("L") + "Z";
-    }).style("fill", colorscale(user)).style("fill-opacity", 0.25);
-
 }
 
 BaryMap.prototype.createViz = function () {
 
     var _self = this;
 
-    var sides = _self.cols.length; // polygon vertices number
-    var radius = width / 4 - 50; // polygon radius
+    var x = _self.x = d3.scale.ordinal().rangePoints([0, width], 1);
+    var y = _self.y = {};
 
-    var svg = _self.svg = d3.select('#content')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .attr('viewBox', [-width / 2, -height / 2, width, height].join(' '));
+    var line = _self.line = d3.svg.line();
+    var axis = _self.axis = d3.svg.axis().orient("left");
+    var background = _self.background = null;
+    var foreground = _self.foreground = null;
 
-    _self.container = svg.append('g');
+    var svg = _self.svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    _self.vertices = polygon(0, 0, radius, sides);
+    d3.csv("cars.csv", function (error, cars) {
 
-    //transform data into x, y
+        // Extract the list of dimensions and create a scale for each.
+        x.domain(dimensions = d3.keys(cars[0]).filter(function (d) {
+            return d != "name" && (y[d] = d3.scale.linear()
+                .domain(d3.extent(cars, function (p) {
+                    return +p[d];
+                }))
+                .range([height, 0]));
+        }));
 
-    for (var i = 0; i < _self.dataTrans.length; i++) {
+        // Add grey background lines for context.
+        background = svg.append("g")
+            .attr("class", "background")
+            .selectAll("path")
+            .data(cars)
+            .enter().append("path")
+            .attr("d", path);
 
-        _self.dataTrans[i].x = 0;
-        _self.dataTrans[i].y = 0;
+        // Add blue foreground lines for focus.
+        foreground = svg.append("g")
+            .attr("class", "foreground")
+            .selectAll("path")
+            .data(cars)
+            .enter().append("path")
+            .attr("d", path);
 
-        for (var j = 0; j < _self.cols.length; j++) {
+        // Add a group element for each dimension.
+        var g = svg.selectAll(".dimension")
+            .data(dimensions)
+            .enter().append("g")
+            .attr("class", "dimension")
+            .attr("transform", function (d) {
+                return "translate(" + x(d) + ")";
+            });
 
-            var key = _self.cols[j];
-            _self.dataTrans[i].x += _self.dataTrans[i][key] * _self.vertices[j][0];
-            _self.dataTrans[i].y += _self.dataTrans[i][key] * _self.vertices[j][1];
-
-        }
-
-    }
-
-    for (var i = 0; i < _self.vertices.length; i++) {
-
-        _self.container.append('line')
-            .attr('x1', _self.vertices[i][0])
-            .attr('y1', _self.vertices[i][1])
-            .attr('x2', _self.vertices[(i + 1) % _self.cols.length][0])
-            .attr('y2', _self.vertices[(i + 1) % _self.cols.length][1])
-            .attr('stroke', '#222')
-            .attr('stroke-width', "2px")
-            .attr('stroke-opacity', 0.7);
-
-    }
-
-    for (var i = 0; i < _self.vertices.length; i++) {
-
-        _self.container.append('circle')
-            .attr('r', 8)
-            .attr('cx', _self.vertices[i][0])
-            .attr('cy', _self.vertices[i][1])
-            .attr('fill', '#4292c6');
-
-        _self.container.append('text')
-            .attr('x', function () {
-                if (i >= _self.vertices.length / 2) {
-                    return _self.vertices[i][0] - 10;
-                } else {
-                    return _self.vertices[i][0] + 10;
-                }
+        // Add an axis and title.
+        g.append("g")
+            .attr("class", "axis")
+            .each(function (d) {
+                d3.select(this).call(axis.scale(y[d]));
             })
-            .attr('y', _self.vertices[i][1])
-            .style('text-anchor', function () {
-                if (i >= _self.vertices.length / 2) {
-                    return "end";
-                } else {
-                    return "start";
-                }
+            .append("text")
+            .style("text-anchor", "middle")
+            .attr("y", -9)
+            .text(function (d) {
+                return d;
+            });
+
+        // Add and store a brush for each axis.
+        g.append("g")
+            .attr("class", "brush")
+            .each(function (d) {
+                d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brush", brush));
             })
-            .attr('fill', '#222')
-            .style('font-size', "14px")
-            .text(_self.cols[i].replace(/_/g, " "));
- 
+            .selectAll("rect")
+            .attr("x", -8)
+            .attr("width", 16);
+    });
+
+    // Returns the path for a given data point.
+    function path(d) {
+        return line(dimensions.map(function (p) {
+            return [x(p), y[p](d[p])];
+        }));
     }
 
-    for (var i = 0; i < _self.dataTrans.length; i++) {
-
-        _self.container.append('circle')
-            .attr('r', 3)
-            .attr('cx', _self.dataTrans[i].x)
-            .attr('cy', _self.dataTrans[i].y)
-            .attr('fill', '#666')
-            .attr('fill-opacity', 0.3);
+    // Handles a brush event, toggling the display of foreground lines.
+    function brush() {
+        var actives = dimensions.filter(function (p) {
+                return !y[p].brush.empty();
+            }),
+            extents = actives.map(function (p) {
+                return y[p].brush.extent();
+            });
+        foreground.style("display", function (d) {
+            return actives.every(function (p, i) {
+                return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+            }) ? null : "none";
+        });
     }
 
-    /* GIVEN x and y, the radius and the number of polygon sides RETURNS AN ARRAY OF VERTICE COORDINATES */
-    function polygon(x, y, radius, sides) {
-        var crd = [];
-
-        /* 1 SIDE CASE */
-        if (sides == 1)
-            return [[x, y]];
-
-        /* > 1 SIDE CASEs */
-        for (var i = 0; i < sides; i++) {
-            crd.push([(x + (Math.sin(2 * Math.PI * i / sides) * radius)), (y - (Math.cos(2 * Math.PI * i / sides) * radius))]);
-        }
-        return crd;
-    }
 
 }
