@@ -13,6 +13,7 @@ var baryVertices = [gross, tomatoRating, imdbvotes, runningTime];
 
 var width = 0;
 
+
 var height = 0;
 
 var parseDate = d3.time.format("%d-%b-%y").parse;
