@@ -1,116 +1,28 @@
-function BaryMap(options) {
+function ParallelCoord(options) {
 
     var _self = this;
 
     _self.data = options.data;
 
     _self.cols = options.cols;
+    
+    _self.margin = {top: 30, right: 10, bottom: 10, left: 10};
+    
+    _self.width = width - margin.left - margin.right;
+    
+    _self.height = height - margin.top - margin.bottom;
 
-    _self.dataMin = {};
-
-    _self.dataMax = {};
-
-    for (var i = 0; i < _self.data.length; i++) {
-
-        for (var j = 0; j < _self.cols.length; j++) {
-
-            var key = _self.cols[j];
-
-            if (key in _self.dataMin) {
-                if (_self.dataMin[key] > _self.data[i]["_id"][key] && _self.data[i]["_id"][key] != null) {
-                    _self.dataMin[key] = _self.data[i]["_id"][key];
-                }
-            } else {
-                _self.dataMin[key] = _self.data[i]["_id"][key] ? _self.data[i]["_id"][key] : Infinity;
-            }
-
-            if (key in _self.dataMax) {
-                if (_self.dataMax[key] < _self.data[i]["_id"][key]) {
-                    _self.dataMax[key] = _self.data[i]["_id"][key];
-                }
-            } else {
-                _self.dataMax[key] = _self.data[i]["_id"][key] ? _self.data[i]["_id"][key] : -Infinity;
-            }
-
-        }
-    }
-
-    _self.dataTrans = new Array(_self.data.length);
-
-    for (var i = 0; i < _self.data.length; i++) {
-
-        var sum = 0;
-
-        _self.dataTrans[i] = {};
-
-        for (var j = 0; j < _self.cols.length; j++) {
-
-            var key = _self.cols[j];
-
-            if (_self.data[i]["_id"][key] == null)
-                _self.data[i]["_id"][key] = _self.dataMin[key];
-
-            _self.dataTrans[i][key] = (_self.data[i]["_id"][key] - _self.dataMin[key]) / (_self.dataMax[key] - _self.dataMin[key]);
-
-            sum += _self.dataTrans[i][key];
-
-        }
-
-        for (var j = 0; j < _self.cols.length; j++) {
-
-            var key = _self.cols[j];
-
-            _self.dataTrans[i][key] = _self.dataTrans[i][key] / sum;
-
-        }
-
-    }
-
-    console.log(_self.dataTrans);
 }
 
 
-BaryMap.prototype.transform = function (data) {
+ParallelCoord.prototype.transform = function (data) {
 
     var _self = this;
 
-    var dataTrans = new Array(data.length);
-
-    for (var i = 0; i < data.length; i++) {
-
-        var sum = 0;
-
-        dataTrans[i] = {};
-
-        for (var j = 0; j < _self.cols.length; j++) {
-
-            var key = _self.cols[j];
-
-            if (data[i]["_id"][key] == null)
-                data[i]["_id"][key] = _self.dataMin[key];
-
-            dataTrans[i][key] = (data[i]["_id"][key] - _self.dataMin[key]) / (_self.dataMax[key] - _self.dataMin[key]);
-
-            sum += dataTrans[i][key];
-
-        }
-
-        for (var j = 0; j < _self.cols.length; j++) {
-
-            var key = _self.cols[j];
-
-            dataTrans[i][key] = dataTrans[i][key] / sum;
-
-        }
-
-    }
-
-    console.log(dataTrans);
-
-    return dataTrans;
+    return data;
 }
 
-BaryMap.prototype.createUser = function (data, user) {
+ParallelCoord.prototype.createUser = function (data, user) {
 
     var _self = this;
 

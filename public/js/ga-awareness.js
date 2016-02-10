@@ -9,10 +9,9 @@ var runningTime = "Running_Time_min";
 var tomatoRating = "Rotten_Tomatoes_Rating";
 var imdbvotes = "IMDB_Votes";
 
-var baryVertices = [gross, tomatoRating, imdbvotes, runningTime];
+var baryVertices = [gross, budget, tomatoRating, imdbvotes, sales];
 
 var width = 0;
-
 
 var height = 0;
 
@@ -23,20 +22,21 @@ var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 var colorscale = d3.scale.category10();
 
 // awareness visualization
-var baryMap;
+var awarenessViz;
+var awarenessType = 1; // 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
 
 // user interactions
 var interactions = [{
     query: [{
         index: gross,
-        value: [2000000000, 3000000000],
+        value: [1000000000, 3000000000],
         operator: "range",
-        logic: "NOT"
+        logic: "CLEAN"
     }]
 }, {
     query: [{
         index: tomatoRating,
-        value: [95, 100],
+        value: [90, 100],
         operator: "range",
         logic: "CLEAN"
     }]
@@ -80,13 +80,56 @@ function createVisualizationfromQueryList(queryList) {
 
         console.log(data);
 
-        baryMap = new BaryMap({
-            data: data,
-            cols: baryVertices
-        });
+        switch (awarenessType) {
+        case 1:
+            awarenessViz = new BaryMap({
+                data: data,
+                cols: baryVertices
+            });
+            break;
 
 
-        baryMap.createMap();
+        case 2:
+            awarenessViz = new ParallelCoord({
+                data: data,
+                cols: baryVertices
+            });
+            break;
+
+
+        case 3:
+            awarenessViz = new RadarPlot({
+                data: data,
+                cols: baryVertices
+            });
+            break;
+
+
+        case 4:
+            awarenessViz = new PathViewer({
+                data: data,
+                cols: baryVertices
+            });
+            break;
+
+        case 5:
+            awarenessViz = new UserMap({
+                data: data,
+                cols: baryVertices
+            });
+            break;
+
+        default:
+            awarenessViz = new PathViewer({
+                data: data,
+                cols: baryVertices
+            });
+            break;
+
+        }
+
+
+        awarenessViz.createViz();
 
         createUserfromQueryList(interactions[0].query, 1);
 
@@ -113,7 +156,7 @@ function createUserfromQueryList(queryList, user) {
 
         console.log(data);
 
-        baryMap.createUser(data, user);
+        awarenessViz.createUser(data, user);
 
     });
 
