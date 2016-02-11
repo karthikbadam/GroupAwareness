@@ -31,6 +31,19 @@ ParallelCoord.prototype.createUser = function (data, user) {
 
     var _self = this;
 
+     // Add blue foreground lines for focus.
+    _self.foreground[user] = _self.svg.append("g")
+        .attr("class", "foreground")
+        .selectAll(".path"+user)
+        .data(data)
+        .enter().append("path")
+        .attr("style", "path"+user)
+        .attr("d", _self.path)
+        .style("fill", "none")
+        .style("stroke", colorscale(user))
+        .style("stroke-width", "1px")
+        .style("stroke-opacity", 0.1);
+    
 }
 
 ParallelCoord.prototype.createViz = function () {
@@ -43,28 +56,13 @@ ParallelCoord.prototype.createViz = function () {
     var line = _self.line = d3.svg.line();
     var axis = _self.axis = d3.svg.axis().orient("left");
     var background = _self.background = null;
-    var foreground = _self.foreground = null;
-    
-     // Returns the path for a given data point.
+    var foreground = _self.foreground = new Array(10);
+
+    // Returns the path for a given data point.
     _self.path = function (d) {
         return _self.line(_self.cols.map(function (p) {
             return [_self.x(p), _self.y[p](d["_id"][p])];
         }));
-    }
-
-    // Handles a brush event, toggling the display of foreground lines.
-    _self.brush = function() {
-        var actives = _self.cols.filter(function (p) {
-                return !_self.y[p].brush.empty();
-            }),
-            extents = actives.map(function (p) {
-                return _self.y[p].brush.extent();
-            });
-        _self.foreground.style("display", function (d) {
-            return actives.every(function (p, i) {
-                return extents[i][0] <= d["_id"][p] && d["_id"][p] <= extents[i][1];
-            }) ? null : "none";
-        });
     }
 
     var svg = _self.svg = d3.select("#content").append("svg")
@@ -94,18 +92,6 @@ ParallelCoord.prototype.createViz = function () {
         .style("stroke-width", "1px")
         .style("stroke-opacity", 0.2);
 
-    // Add blue foreground lines for focus.
-    _self.foreground = _self.svg.append("g")
-        .attr("class", "foreground")
-        .selectAll("path")
-        .data(_self.data)
-        .enter().append("path")
-        .attr("d", _self.path)
-        .style("fill", "none")
-        .style("stroke", "#4292c6")
-        .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.4);
-
     // Add a group element for each dimension.
     var g = _self.g = _self.svg.selectAll(".dimension")
         .data(_self.cols)
@@ -113,13 +99,15 @@ ParallelCoord.prototype.createViz = function () {
         .attr("class", "dimension")
         .attr("transform", function (d) {
             return "translate(" + _self.x(d) + ")";
-        });
+        })
+        .style("fill", "#aaa");
 
     // Add an axis and title.
     _self.g.append("g")
         .attr("class", "axis")
+        .style("fill", "#aaa")
         .each(function (d) {
-            d3.select(this).call(_self.axis.scale(_self.y[d]));
+            d3.select(this).call(_self.axis.scale(_self.y[d])).style("color", "none");
         })
         .append("text")
         .style("text-anchor", "middle")
@@ -128,15 +116,6 @@ ParallelCoord.prototype.createViz = function () {
             return d.replace(/_/g, " ");
         });
 
-    // Add and store a brush for each axis.
-    _self.g.append("g")
-        .attr("class", "brush")
-        .each(function (d) {
-            d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d]).on("brushend", _self.brush));
-        })
-        .selectAll("rect")
-        .attr("x", -8)
-        .attr("width", 16);
 
 
 }

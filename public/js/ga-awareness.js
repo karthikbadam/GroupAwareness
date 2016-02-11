@@ -29,7 +29,14 @@ var awarenessType = 2; // 1 for Barycentric, 2 for parallel coordinates, 3 for r
 var interactions = [{
     query: [{
         index: gross,
-        value: [1000000000, 3000000000],
+        value: [200000000, 300000000],
+        operator: "range",
+        logic: "CLEAN"
+    }]
+}, {
+    query: [{
+        index: budget,
+        value: [200000000, 300000000],
         operator: "range",
         logic: "CLEAN"
     }]
@@ -130,11 +137,11 @@ function createVisualizationfromQueryList(queryList) {
 
 
         awarenessViz.createViz();
-
-        createUserfromQueryList(interactions[0].query, 1);
-
-        createUserfromQueryList(interactions[1].query, 2);
-
+        
+        interactions.forEach(function (d, i) {
+            createUserfromQueryList(d.query, i+1);
+        });
+        
 
     });
 
