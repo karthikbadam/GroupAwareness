@@ -42,7 +42,7 @@ ParallelCoord.prototype.createUser = function (data, user) {
         .style("fill", "none")
         .style("stroke", colorscale(user))
         .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.1);
+        .style("stroke-opacity", 1/Math.pow(data.length+1, 0.5));
     
 }
 
@@ -90,7 +90,7 @@ ParallelCoord.prototype.createViz = function () {
         .style("fill", "none")
         .style("stroke", "#ddd")
         .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.2);
+        .style("stroke-opacity", 0.05);
 
     // Add a group element for each dimension.
     var g = _self.g = _self.svg.selectAll(".dimension")
@@ -107,7 +107,7 @@ ParallelCoord.prototype.createViz = function () {
         .attr("class", "axis")
         .style("fill", "#aaa")
         .each(function (d) {
-            d3.select(this).call(_self.axis.scale(_self.y[d])).style("color", "none");
+            d3.select(this).call(_self.axis.scale(_self.y[d])).style("fill", "#aaa").style("stroke", "none");
         })
         .append("text")
         .style("text-anchor", "middle")
