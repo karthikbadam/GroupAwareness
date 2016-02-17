@@ -10,9 +10,6 @@ var d3 = require('d3');
 var url = require('url');
 var qs = require('qs');
 
-var parseDate = d3.time.format("%d-%b-%y").parse;
-var parseYear = d3.time.format("%Y").parse;
-
 //var citiesToLoc = require('./maps.js').citiesToLoc;
 
 //var routes = require('./routes/index');
@@ -26,8 +23,8 @@ var ObjectId = require('mongodb').ObjectID;
 var FIRST_TIME_EXECUTED = false;
 
 // connect to the flights database in mongodb
-//var mongourl = 'mongodb://127.0.0.1:27017/flights';
-var mongourl = 'mongodb://127.0.0.1:27017/movies';
+var mongourlMovies = 'mongodb://127.0.0.1:27017/movies';
+var mongourlCrime = 'mongodb://127.0.0.1:27017/crime';
 
 var app = express();
 
@@ -48,8 +45,11 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 // Change from Default:  Instead of routes and users 
+app.get('/', function (req, res, next) {
+    res.render('crime.html', {});
+});
+
 app.get('/visualization', function (req, res, next) {
     res.render('largedisplay.html', {});
 });
@@ -70,19 +70,92 @@ app.get('/study', function (req, res, next) {
     res.render('data.html', {});
 });
 
-var gross = "Worldwide_Gross";
-var ratings = "IMDB_Rating";
-var budget = "Production_Budget";
-var date = "Release_Date";
-var director = "Director";
-var genre = "Major_Genre";
-var sales = "US_DVD_Sales";
-var runningTime = "Running_Time_min";
-var tomatoRating = "Rotten_Tomatoes_Rating";
-var imdbvotes = "IMDB_Votes";
+// Movies
+var moviesMeta = {};
+moviesMeta["gross"] = "Worldwide_Gross";
+moviesMeta["ratings"] = "IMDB_Rating";
+moviesMeta["budget"] = "Production_Budget";
+moviesMeta["date"] = "Release_Date";
+moviesMeta["director"] = "Director";
+moviesMeta["genre"] = "Major_Genre";
+moviesMeta["sales"] = "US_DVD_Sales";
+moviesMeta["runningTime"] = "Running_Time_min";
+moviesMeta["tomatoRating"] = "Rotten_Tomatoes_Rating";
+moviesMeta["imdbvotes"] = "IMDB_Votes";
 
-function initialize(db, callback) {
+// Crime
+var crimeMeta = {};
+crimeMeta["id"] = "id";
+crimeMeta["date"] = "CrimeDate";
+crimeMeta["code"] = "CrimeCode";
+crimeMeta["time"] = "CrimeTime";
+crimeMeta["location"] = "Location";
+crimeMeta["description"] = "Description";
+crimeMeta["weapon"] = "Weapon";
+crimeMeta["post"] = "Post";
+crimeMeta["district"] = "District";
+crimeMeta["neighborhood"] = "Neighborhood";
+crimeMeta["lat"] = "Latitude";
+crimeMeta["lon"] = "Longitude";
+
+var crimeStream = fs.createReadStream("public/data/crime.csv");
+
+function initializeCrime(db, callback) {
+    
+    var END = false;
     if (FIRST_TIME_EXECUTED) {
+        var parseDate = d3.time.format("%m/%d/%y").parse;
+        var parseYear = d3.time.format("%Y").parse;
+
+        var i = 1;
+        var tempi = 1;
+        var csvStream = csv
+            .fromStream(crimeStream, {
+                headers: true
+            })
+            .on("data", function (d) {
+
+                var temp = {};
+                temp[crimeMeta["id"]] = i;
+                temp[crimeMeta["date"]] = "" + parseDate(d[crimeMeta["date"]]);
+                temp[crimeMeta["code"]] = d[crimeMeta["code"]];
+                temp[crimeMeta["time"]] = d[crimeMeta["time"]];
+                temp[crimeMeta["location"]] = d[crimeMeta["location"]];
+                temp[crimeMeta["description"]] = d[crimeMeta["description"]];
+                temp[crimeMeta["weapon"]] = d[crimeMeta["weapon"]];
+                temp[crimeMeta["post"]] = d[crimeMeta["post"]];
+                temp[crimeMeta["district"]] = d[crimeMeta["district"]];
+                temp[crimeMeta["neighborhood"]] = d[crimeMeta["neighborhood"]];
+                temp[crimeMeta["lat"]] = parseFloat(d[crimeMeta["lat"]]);
+                temp[crimeMeta["lon"]] = parseFloat(d[crimeMeta["lon"]]);
+                i = i+1;
+                
+                console.log(temp);
+
+                db.collection('crime')
+                    .insertOne(temp,
+                        function (err, result) {
+                            assert.equal(err, null);
+                            console.log("Inserted a document");
+                            tempi++;
+                    
+                            if (tempi == i) {
+                                console.log("CREATED THE DATABASE");
+                                callback();   
+                            }
+                            
+                        });
+            })
+            .on("end", function () {
+                
+            });
+    }
+}
+
+function initializeMovies(db, callback) {
+    if (FIRST_TIME_EXECUTED) {
+        var parseDate = d3.time.format("%d-%b-%y").parse;
+        var parseYear = d3.time.format("%Y").parse;
 
         var obj;
         fs.readFile("public/data/movies.json", 'utf8', function (err, data) {
@@ -93,21 +166,21 @@ function initialize(db, callback) {
                 var d = obj[i];
 
                 var temp = {};
-                temp[gross] = +d[gross];
-                temp[ratings] = +d[ratings];
-                temp[budget] = +d[budget];
-                if (("" + d[date]).split("-").length == 3) {
-                    temp[date] = "" + parseDate(d[date]);
+                temp[moviesMeta["gross"]] = +d[moviesMeta["gross"]];
+                temp[moviesMeta["ratings"]] = +d[moviesMeta["ratings"]];
+                temp[moviesMeta["budget"]] = +d[moviesMeta["budget"]];
+                if (("" + d[moviesMeta["date"]]).split("-").length == 3) {
+                    temp[moviesMeta["date"]] = "" + parseDate(d[moviesMeta["date"]]);
                 } else {
-                    temp[date] = "" + parseYear(("" + d[date]));
+                    temp[moviesMeta["date"]] = "" + parseYear(("" + d[moviesMeta["date"]]));
                 }
-                temp[director] = d[director];
-                temp[genre] = d[genre];
-                temp[sales] = d[sales];
-                temp[runningTime] = d[runningTime];
-                temp[tomatoRating] = d[tomatoRating];
-                temp[imdbvotes] = d[imdbvotes];
-                
+                temp[moviesMeta["director"]] = d[moviesMeta["director"]];
+                temp[moviesMeta["genre"]] = d[moviesMeta["genre"]];
+                temp[moviesMeta["sales"]] = d[moviesMeta["sales"]];
+                temp[moviesMeta["runningTime"]] = d[moviesMeta["runningTime"]];
+                temp[moviesMeta["tomatoRating"]] = d[moviesMeta["tomatoRating"]];
+                temp[moviesMeta["imdbvotes"]] = d[moviesMeta["imdbvotes"]];
+
                 console.log(temp);
 
                 //add to database
@@ -118,10 +191,8 @@ function initialize(db, callback) {
                         });
             }
         });
-
     }
 }
-
 
 // get all data based on a query of specific dimensions
 function queryMovies(db, query, callback) {
@@ -143,7 +214,7 @@ function queryMovies(db, query, callback) {
                             Director: "$Director",
                             Major_Genre: "$Major_Genre",
                             US_DVD_Sales: "$US_DVD_Sales",
-                            Running_Time_min: "$Running_Time_min", 
+                            Running_Time_min: "$Running_Time_min",
                             IMDB_Votes: "$IMDB_Votes",
                             Rotten_Tomatoes_Rating: "$Rotten_Tomatoes_Rating"
                         },
@@ -173,7 +244,7 @@ function queryMovies(db, query, callback) {
                             Director: "$Director",
                             Major_Genre: "$Major_Genre",
                             US_DVD_Sales: "$US_DVD_Sales",
-                            Running_Time_min: "$Running_Time_min", 
+                            Running_Time_min: "$Running_Time_min",
                             IMDB_Votes: "$IMDB_Votes",
                             Rotten_Tomatoes_Rating: "$Rotten_Tomatoes_Rating"
                         },
@@ -198,13 +269,76 @@ function queryMovies(db, query, callback) {
 
 }
 
+function queryCrime(db, query, callback) {
+
+    var groupID = {};
+
+    var keys = Object.keys(crimeMeta);
+
+    for (var i = 0; i < keys.length; i++) {
+
+        var key = keys[i];
+
+        groupID[crimeMeta[key]] = "$" + crimeMeta[key];
+    }
+
+    if (query != 0) {
+
+        var data = db.collection("crime")
+            .aggregate([
+                {
+                    $match: query
+                },
+                {
+                    $group: {
+                        "_id": groupID,
+                        "CrimeCode": {
+                            $count: "$" + crimeMeta["code"]
+                        }
+                    }
+                }, {
+                    $sort: {
+                        "CrimeCode": -1
+                    }
+                }
+            ]);
+
+    } else {
+
+
+        var data = db.collection("crime")
+            .aggregate([
+                {
+                    $group: {
+                        "_id": groupID,
+                        "CrimeCode": {
+                            $count: "$" + crimeMeta["code"]
+                        }
+                    }
+                }, {
+                    $sort: {
+                        "CrimeCode": -1
+                    }
+                }
+            ]);
+    }
+
+
+
+    data.toArray(function (err, docs) {
+        console.log(docs.length);
+        callback(docs);
+    });
+
+}
+
 app.get('/getMovies', function (req, res, next) {
 
     var params = url.parse(req.url, true).query;
 
     var query = parseQueryString(params);
 
-    MongoClient.connect(mongourl, function (err, db) {
+    MongoClient.connect(mongourlMovies, function (err, db) {
         assert.equal(null, err);
 
         queryMovies(db, query,
@@ -217,10 +351,36 @@ app.get('/getMovies', function (req, res, next) {
 
 });
 
+app.get('/getCrime', function (req, res, next) {
 
-MongoClient.connect(mongourl, function (err, db) {
+    var params = url.parse(req.url, true).query;
+
+    var query = parseQueryString(params);
+
+    MongoClient.connect(mongourlCrime, function (err, db) {
+        assert.equal(null, err);
+
+        queryCrime(db, query,
+            function (data) {
+                db.close();
+                res.write(JSON.stringify(data));
+                res.end();
+            });
+    });
+
+});
+
+
+MongoClient.connect(mongourlMovies, function (err, db) {
     assert.equal(null, err);
-    initialize(db, function () {
+    initializeMovies(db, function () {
+        db.close();
+    });
+});
+
+MongoClient.connect(mongourlCrime, function (err, db) {
+    assert.equal(null, err);
+    initializeCrime(db, function () {
         db.close();
     });
 });
@@ -247,7 +407,7 @@ function parseQueryString(params) {
         switch (d.operator) {
 
         case "range":
-            if (d.index == "Date") {
+            if (d.index == "Date" || d.index == "crimeDate") {
                 q[d.index] = {
                     "$gte": d.value[0],
                     "$lte": d.value[1]
@@ -266,7 +426,7 @@ function parseQueryString(params) {
 
         case "in":
             for (var i = 0; i < d.value.length; i++) {
-                d.value[i] = parseFloat(d.value[i]);   
+                d.value[i] = parseFloat(d.value[i]);
             }
             q[d.index] = {
                 "$in": d.value
@@ -312,8 +472,6 @@ function parseQueryString(params) {
     return query;
 
 }
-
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
