@@ -13,15 +13,17 @@ crimeMeta["neighborhood"] = "Neighborhood";
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
-var numViews = 9;
+var numViews = 8;
 
 var visuals = [
     ['Description'],
     ['Weapon'],
     ['Neighborhood'],
     ['District'],
-    ['Post'],
+    ['Latitude', 'Longitude'],
     ['CrimeCode'],
+    ['Location'],
+    ['CrimeDate']
 ];
 
 var index = 0;
@@ -73,7 +75,11 @@ $(document).ready(function () {
     }).data('gridster');
 
     for (var i = 0; i < numViews; i++) {
-        gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 1, 1);
+        if (i == numViews - 1) {
+            gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 2, 1);  
+        } else {
+            gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 1, 1);  
+        }
     }
 
     var query = {
@@ -125,16 +131,35 @@ function getDatafromQuery(queryList) {
             if (d.length == 1) {
 
                 var processed = processData(data, d[0]);
-                var visualization = new Bar({
-                    parentId: "viz"+i,
-                    cols: [d[0], "count"],
-                    width: $("#viz"+i).width(),
-                    height: $("#viz"+i).height(),
-                    text: "Count by " + d[0]
-                });
-
                 
-                visualization.updateVisualization(processed);
+                if (d[0].indexOf ("Date") > -1) {
+                    
+                    var visualization = new TimeChart({
+                        parentId: "viz"+i,
+                        cols: [d[0], "count"],
+                        width: $("#viz"+i).width(),
+                        height: $("#viz"+i).height(),
+                        text: "Crime Count by " + d[0],
+                        month: true
+                    });
+                    
+                    visualization.updateVisualization(processed);
+                    
+                } else {
+                    
+                    var visualization = new Bar({
+                        parentId: "viz"+i,
+                        cols: [d[0], "count"],
+                        width: $("#viz"+i).width(),
+                        height: $("#viz"+i).height(),
+                        text: "Crime Count by " + d[0]
+                    });
+                    
+                    visualization.updateVisualization(processed);
+
+                }
+                
+                
 
             } else {
 
@@ -148,17 +173,29 @@ function getDatafromQuery(queryList) {
 function processData(data, col1, col2) {
 
     var newData = {};
+    
+    
 
     data.forEach(function (d) {
+        
+        var key = d["_id"][col1];
+        
+        // if has dates
+        if (col1.indexOf("Date") > -1) {
+            var cdate = new Date(d["_id"][col1]);
+            var cyear = cdate.getFullYear();
+            var cmonth = month_names_short[cdate.getMonth()];
+        
+            key = cmonth + "/" + cyear;
+        } 
 
-        if (d["_id"][col1] in newData) {
-            var key = d["_id"][col1];
+        if (key in newData) {
+            
             //count -- can be automated!!!
             newData[key]++;
             
         } else {
 
-            var key = d["_id"][col1];
             newData[key] = 1;
         }
     });

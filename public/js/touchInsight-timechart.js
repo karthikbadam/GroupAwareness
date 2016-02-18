@@ -9,7 +9,7 @@ function TimeChart(options) {
     _self.margin = {
         top: 5,
         right: 10,
-        bottom: 20,
+        bottom: 40,
         left: 45
     };
 
@@ -18,6 +18,8 @@ function TimeChart(options) {
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
+    
+    _self.hasMonth = options.month;
 
 }
 
@@ -27,9 +29,12 @@ TimeChart.prototype.updateVisualization = function (data) {
     
     _self.targetData = data;
     
-    _self.parseDate = d3.time.format("%b/%Y").parse;
-    _self.parseDate = d3.time.format("%Y").parse;
-
+    if (_self.hasMonth) {
+        _self.parseDate = d3.time.format("%b/%Y").parse;   
+    } else {
+        _self.parseDate = d3.time.format("%Y").parse;
+    }
+    
     if (!_self.svg || _self.svg.select("path").empty()) {
 
         _self.svg = d3.select("#" + _self.parentId)
@@ -52,20 +57,26 @@ TimeChart.prototype.updateVisualization = function (data) {
             .scale(x)
             .orient("bottom")
             .tickFormat(function (d) {
-                return d3.time.format('%Y')(new Date(d));
+                return d3.time.format('%b/%Y')(new Date(d));
             })
             .innerTickSize(-_self.height)
             .outerTickSize(0)
             .tickPadding(10);
         
-        _self.xAxis.ticks(d3.time.years, 1);
+        if (_self.hasMonth) {
+            
+            _self.xAxis.ticks(d3.time.months, 1);
 
+        } else {
+
+            _self.xAxis.ticks(d3.time.years, 1);
+
+        }
         if (device == "MOBILE2") {
             _self.xAxis.ticks(d3.time.years, 2);
         }
 
-        _self.xAxis.ticks(d3.time.years, 4);
-
+        
         var yAxis = _self.yAxis = d3.svg.axis()
             .scale(y)
             .orient("left").tickFormat(d3.format("s"))
@@ -116,7 +127,6 @@ TimeChart.prototype.updateVisualization = function (data) {
         _self.svg.append("path")
             .datum(_self.targetData)
             .attr("id", "time")
-            .attr("class", "flightsTime")
             .attr("d", area)
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", 0.8)
