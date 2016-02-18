@@ -136,7 +136,7 @@ function getDatafromQuery(queryList) {
                     
                     var visualization = new TimeChart({
                         parentId: "viz"+i,
-                        cols: [d[0], "count"],
+                        cols: [d[0], "value"],
                         width: $("#viz"+i).width(),
                         height: $("#viz"+i).height(),
                         text: "Crime Count by " + d[0],
@@ -149,7 +149,7 @@ function getDatafromQuery(queryList) {
                     
                     var visualization = new Bar({
                         parentId: "viz"+i,
-                        cols: [d[0], "count"],
+                        cols: [d[0], "value"],
                         width: $("#viz"+i).width(),
                         height: $("#viz"+i).height(),
                         text: "Crime Count by " + d[0]
@@ -162,18 +162,20 @@ function getDatafromQuery(queryList) {
                 
             } else {
                 
+                var processed = processData(data, d[0], d[1]);
+                
                 if (d[0].indexOf ("Latitude") > -1) {
                     
                     var visualization = new Map({
                         parentId: "viz"+i,
-                        cols: [d[0], "count"],
+                        cols: [d[0], d[1], "value"],
                         width: $("#viz"+i).width(),
                         height: $("#viz"+i).height(),
                         text: "Crime Count by " + d[0],
                         month: true
                     });
                     
-                    visualization.updateVisualization([]);
+                    visualization.updateVisualization(processed);
                     
                 }
 
@@ -187,12 +189,10 @@ function getDatafromQuery(queryList) {
 function processData(data, col1, col2) {
 
     var newData = {};
-    
-    
 
     data.forEach(function (d) {
         
-        var key = d["_id"][col1];
+        var key = d["_id"][col1];  
         
         // if has dates
         if (col1.indexOf("Date") > -1) {
@@ -203,6 +203,14 @@ function processData(data, col1, col2) {
             key = cmonth + "/" + cyear;
         } 
 
+        if (col2) {
+            tempkey = key;
+            key = {};
+            key[col1] =  tempkey;
+            key[col2] =  d["_id"][col2];
+            key = JSON.stringify(key);
+        }
+        
         if (key in newData) {
             
             //count -- can be automated!!!
@@ -219,8 +227,12 @@ function processData(data, col1, col2) {
     Object.keys(newData).forEach(function (k) {
 
         var datum = {};
-        datum[col1] = k;
-        datum["count"] = newData[k];
+        if (col2) {
+            datum["key"] = JSON.parse(k);
+        } else {
+            datum[col1] = k;
+        }
+        datum["value"] = newData[k];
         returnData.push(datum);
 
     });
