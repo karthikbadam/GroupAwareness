@@ -14,7 +14,7 @@ function Bar(options) {
         top: 5,
         right: 30,
         bottom: 30,
-        left: 58
+        left: 70
     };
 
 
@@ -56,13 +56,19 @@ Bar.prototype.updateVisualization = function (data) {
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.targetData, function (d) {
-                return Math.pow(d[_self.cols[1]], 1);
+                if (d[_self.cols[0]] != "")
+                    return d[_self.cols[1]];
+                
+                return 0;
             })])
             .range([0, _self.width]);
 
         _self.y = d3.scale.ordinal()
             .domain(_self.targetData.map(function (d) {
-                return d[_self.cols[0]];
+                if (d[_self.cols[0]] != "")
+                    return d[_self.cols[0]];
+            
+                return 0;
             }))
             .rangeBands([0, _self.height]);
 

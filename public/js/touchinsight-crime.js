@@ -17,12 +17,12 @@ var numViews = 8;
 
 var visuals = [
     ['Description'],
-    ['Weapon'],
     ['Neighborhood'],
+    ['Weapon'],
     ['District'],
     ['Latitude', 'Longitude'],
-    ['CrimeCode'],
     ['Location'],
+    ['CrimeCode'],
     ['CrimeDate']
 ];
 
@@ -160,8 +160,22 @@ function getDatafromQuery(queryList) {
                 }
                 
                 
-
             } else {
+                
+                if (d[0].indexOf ("Latitude") > -1) {
+                    
+                    var visualization = new Map({
+                        parentId: "viz"+i,
+                        cols: [d[0], "count"],
+                        width: $("#viz"+i).width(),
+                        height: $("#viz"+i).height(),
+                        text: "Crime Count by " + d[0],
+                        month: true
+                    });
+                    
+                    visualization.updateVisualization([]);
+                    
+                }
 
             }
         });
