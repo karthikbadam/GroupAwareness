@@ -75,8 +75,8 @@ $(document).ready(function () {
     }).data('gridster');
 
     for (var i = 0; i < numViews; i++) {
-        if (i == numViews - 1) {
-            gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 2, 1);  
+        if (i == Math.floor(numViews/2)) {
+            gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 1, 2);  
         } else {
             gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 1, 1);  
         }

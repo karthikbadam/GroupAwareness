@@ -7,7 +7,7 @@ function TimeChart(options) {
     _self.cols = options.cols;
 
     _self.margin = {
-        top: 5,
+        top: 0,
         right: 10,
         bottom: 40,
         left: 45
@@ -36,6 +36,12 @@ TimeChart.prototype.updateVisualization = function (data) {
     }
     
     if (!_self.svg || _self.svg.select("path").empty()) {
+        
+         d3.select("#" + _self.parentId).select("header")
+            .style("padding-left", "5px")
+            .text(_self.text)
+            .style("font-size", "12px");
+
 
         _self.svg = d3.select("#" + _self.parentId)
             .append("svg")
@@ -65,7 +71,7 @@ TimeChart.prototype.updateVisualization = function (data) {
         
         if (_self.hasMonth) {
             
-            _self.xAxis.ticks(d3.time.months, 1);
+            _self.xAxis.ticks(d3.time.months, 2);
 
         } else {
 
@@ -110,13 +116,7 @@ TimeChart.prototype.updateVisualization = function (data) {
 
         _self.svg.append("g")
             .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("x", 10)
-            .attr("dy", "1em")
-            .style("text-anchor", "start")
-            .style("font-size", "14px")
-            .text(_self.text);
+            .call(yAxis);
 
         _self.targetData.sort(function (a, b) {
             if (_self.parseDate(b[_self.cols[0]]).getTime() <

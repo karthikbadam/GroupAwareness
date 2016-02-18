@@ -21,7 +21,7 @@ function Map(options) {
     var map = _self.map =
         new L.Map(_self.parentId, {
             center: [39.2854197594374, -76.61109924316406],
-            zoom: 11
+            zoom: 12
         })
         .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
 
@@ -53,7 +53,7 @@ Map.prototype.updateVisualization = function (data) {
 
     if (!_self.svg || _self.svg.select("circle").empty()) {
         
-        d3.select(".leaflet-tile-pane").style("opacity", 0.5);
+        d3.select(".leaflet-tile-pane").style("opacity", 0.7);
 
         var svg = _self.svg = d3.select(_self.map.getPanes().overlayPane).append("svg")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
