@@ -292,38 +292,27 @@ function queryCrime(db, query, callback) {
                 {
                     $group: {
                         "_id": groupID,
-                        "CrimeCode": {
+                        CrimeCount: {
                             $count: "$" + crimeMeta["code"]
                         }
-                    }
-                }, {
-                    $sort: {
-                        "CrimeCode": -1
                     }
                 }
             ]);
 
     } else {
-
+        
+        console.log(groupID);
 
         var data = db.collection("crime")
             .aggregate([
                 {
                     $group: {
-                        "_id": groupID,
-                        "CrimeCode": {
-                            $count: "$" + crimeMeta["code"]
-                        }
-                    }
-                }, {
-                    $sort: {
-                        "CrimeCode": -1
+                        "_id": groupID
                     }
                 }
             ]);
+        
     }
-
-
 
     data.toArray(function (err, docs) {
         console.log(docs.length);
@@ -390,9 +379,8 @@ function parseQueryString(params) {
 
     var data = qs.parse(params).data;
 
-    console.log(JSON.stringify(data));
-
     if (data == "empty") {
+        console.log(data);
         return 0;
     }
 

@@ -15,6 +15,13 @@ crimeMeta["lon"] = "Longitude";
 
 var numViews = 9; 
 
+var visuals = [
+    ['Description'], 
+    ['Weapon'], 
+    ['Neighborhood'],
+    ['CrimeDate'],
+];
+
 var index = 0;
 
 var device = 0;
@@ -67,27 +74,18 @@ $(document).ready(function () {
         gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 1, 1);
     }
 
-    
-    //gridster.remove_widget( $('.gridster div').eq(1) );
-    
-    //    createLayout();
-    //
-    //    onDataLoaded();
-    //
-    //    var query = {
-    //        index1: budget,
-    //        operator1: "all",
-    //        value: "",
-    //        logic: "CLEAN",
-    //        index2: gross,
-    //        operator2: "all",
-    //        value: "",
-    //    };
-    //
-    //    createVisualizationfromQueryList([query]);
+    var query = {
+        index1: crimeMeta["date"],
+        operator1: "all",
+        value: "",
+        logic: "CLEAN",
+        index2: crimeMeta["description"],
+        operator2: "all",
+        value: "",
+    };
 
-    //createDelay(index);
-
+    getDatafromQuery("empty");
+    
 });
 
 
@@ -104,12 +102,12 @@ function createDelay(index) {
 
 }
 
-function createVisualizationfromQueryList(queryList) {
+function getDatafromQuery(queryList) {
 
     $.ajax({
 
         type: "GET",
-        url: "/getMovies",
+        url: "/getCrime",
         data: {
             data: queryList
         }
@@ -120,22 +118,7 @@ function createVisualizationfromQueryList(queryList) {
 
         console.log(data);
 
-        gross_budget.updateVisualization(data);
-
-        processByYear(data);
-
-        var dataByGenre = processByGenre(data);
-
-        var dataByTime = processByYear(data);
-
-        genre_gross.updateVisualization(dataByGenre);
-
-        genre_budget.updateVisualization(dataByGenre);
-
-        gross_time.updateVisualization(dataByTime);
-
-        budget_time.updateVisualization(dataByTime);
-
+    
     });
 
 }
