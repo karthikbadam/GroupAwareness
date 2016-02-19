@@ -7,9 +7,9 @@ function TimeChart(options) {
     _self.cols = options.cols;
 
     _self.margin = {
-        top: 0,
+        top: 10,
         right: 10,
-        bottom: 40,
+        bottom: 50,
         left: 45
     };
 
@@ -40,7 +40,7 @@ TimeChart.prototype.updateVisualization = function (data) {
          d3.select("#" + _self.parentId).select("header")
             .style("padding-left", "5px")
             .text(_self.text)
-            .style("font-size", "12px");
+            .style("font-size", "14px");
 
 
         _self.svg = d3.select("#" + _self.parentId)

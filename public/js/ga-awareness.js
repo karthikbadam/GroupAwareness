@@ -1,3 +1,4 @@
+//movie dataset
 var gross = "Worldwide_Gross";
 var ratings = "IMDB_Rating";
 var budget = "Production_Budget";
@@ -9,13 +10,28 @@ var runningTime = "Running_Time_min";
 var tomatoRating = "Rotten_Tomatoes_Rating";
 var imdbvotes = "IMDB_Votes";
 
-var baryVertices = [gross, budget, tomatoRating, imdbvotes, sales];
+//crime dataset
+// Crime
+var crimeMeta = {};
+crimeMeta["id"] = "id";
+crimeMeta["date"] = "CrimeDate";
+crimeMeta["code"] = "CrimeCode";
+crimeMeta["time"] = "CrimeTime";
+crimeMeta["location"] = "Location";
+crimeMeta["description"] = "Description";
+crimeMeta["weapon"] = "Weapon";
+crimeMeta["post"] = "Post";
+crimeMeta["district"] = "District";
+crimeMeta["neighborhood"] = "Neighborhood";
+crimeMeta["lat"] = "Latitude";
+crimeMeta["lon"] = "Longitude";
+
+//var baryVertices = [gross, budget, tomatoRating, imdbvotes, sales];
+var baryVertices = ["Neighborhood", "Description", "Location"];
 
 var width = 0;
 
 var height = 0;
-
-var parseDate = d3.time.format("%d-%b-%y").parse;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -23,28 +39,26 @@ var colorscale = d3.scale.category10();
 
 // awareness visualization
 var awarenessViz;
-var awarenessType = 2; // 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
+var awarenessType = 1; // 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
 
 // user interactions
 var interactions = [{
     query: [{
-        index: gross,
-        value: [200000000, 300000000],
-        operator: "range",
+        index: crimeMeta["description"],
+        value: ['ROBBERY - CARJACKING'],
+        operator: "in",
         logic: "CLEAN"
+    }, {
+        index: crimeMeta["weapon"],
+        value: ["KNIFE"],
+        operator: "in",
+        logic: "AND"
     }]
 }, {
     query: [{
-        index: budget,
-        value: [200000000, 300000000],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: tomatoRating,
-        value: [90, 100],
-        operator: "range",
+        index: crimeMeta["neighborhood"],
+        value: ["Walbrook"],
+        operator: "in",
         logic: "CLEAN"
     }]
 }];
@@ -66,17 +80,17 @@ $(document).ready(function () {
         value: "",
     };
 
-    createVisualizationfromQueryList([query]);
+    getDataFromQuery("empty");
 
 
 });
 
-function createVisualizationfromQueryList(queryList) {
+function getDataFromQuery(queryList) {
 
     $.ajax({
 
         type: "GET",
-        url: "/getMovies",
+        url: "/getCrime",
         data: {
             data: queryList
         }
@@ -152,7 +166,7 @@ function createUserfromQueryList(queryList, user) {
     $.ajax({
 
         type: "GET",
-        url: "/getMovies",
+        url: "/getCrime",
         data: {
             data: queryList
         }

@@ -291,10 +291,7 @@ function queryCrime(db, query, callback) {
                 },
                 {
                     $group: {
-                        "_id": groupID,
-                        CrimeCount: {
-                            $count: "$" + crimeMeta["code"]
-                        }
+                        "_id": groupID
                     }
                 }
             ]);
@@ -414,7 +411,8 @@ function parseQueryString(params) {
 
         case "in":
             for (var i = 0; i < d.value.length; i++) {
-                d.value[i] = parseFloat(d.value[i]);
+                if (!isNaN(parseFloat(d.value[i])))
+                    d.value[i] = parseFloat(d.value[i]);
             }
             q[d.index] = {
                 "$in": d.value

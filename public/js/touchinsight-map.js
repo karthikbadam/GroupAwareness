@@ -21,11 +21,14 @@ function Map(options) {
     var map = _self.map =
         new L.Map(_self.parentId, {
             center: [39.2854197594374, -76.61109924316406],
-            zoom: 12
+            zoom: 11
         })
         .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
 
     var handler = function (e) {
+        //e.preventDefault();
+        //e.stopPropagation();
+        
         _self.updateVisualization(_self.data);
     }
 
@@ -48,8 +51,6 @@ Map.prototype.updateVisualization = function (data) {
     _self.data = data;
     
     var opacity = (_self.map.getZoom() + 2 - 11)/10;
-    
-    
 
     if (!_self.svg || _self.svg.select("circle").empty()) {
         
@@ -91,13 +92,16 @@ Map.prototype.updateVisualization = function (data) {
             .attr("fill", function (d) {
                 return "#4292c6";
             })
-            .attr("fill-opacity", 0.2)
+            .attr("fill-opacity", 0.5)
             .attr("stroke", function (d) {
                 return "transparent";
             })
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
-            .attr("r", "3px");
+            .attr("r", function (d) {
+            return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";           
+        });
+        
     } else {
 
         var crimeSpots = _self.svg
@@ -134,13 +138,15 @@ Map.prototype.updateVisualization = function (data) {
             .attr("fill", function (d) {
                 return "#4292c6";
             })
-            .attr("fill-opacity", opacity)
+            .attr("fill-opacity", 0.5)
             .attr("stroke", function (d) {
                 return "transparent";
             })
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
-            .attr("r", "3px");
+            .attr("r", function (d) {
+            return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";           
+        });
 
         crimeSpots.attr("cx", function (d, i) {
                 var loc = d;
@@ -166,13 +172,15 @@ Map.prototype.updateVisualization = function (data) {
             .attr("fill", function (d) {
                 return "#4292c6";
             })
-            .attr("fill-opacity", opacity)
+            .attr("fill-opacity", 0.5)
             .attr("stroke", function (d) {
                 return "transparent";
             })
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
-            .attr("r", "3px");
+            .attr("r", function (d) {
+            return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";           
+        });
 
     }
 

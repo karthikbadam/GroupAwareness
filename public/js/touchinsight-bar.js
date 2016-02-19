@@ -23,6 +23,8 @@ function Bar(options) {
     _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
     
     _self.myFormat = d3.format(',');
+    
+    _self.defaultData = null;
 }
 
 Bar.prototype.updateVisualization = function (data) {
@@ -30,6 +32,10 @@ Bar.prototype.updateVisualization = function (data) {
     var _self = this;
     
     _self.targetData = data;
+    
+    if (_self.defaultData != null) {
+        _self.defaultData = data;   
+    }
     
     d3.select("#" + _self.parentId).style("overflow", "hidden");
 
@@ -40,7 +46,7 @@ Bar.prototype.updateVisualization = function (data) {
         d3.select("#" + _self.parentId).select("header")
             .style("padding-left", "5px")
             .text(_self.text)
-            .style("font-size", "12px");
+            .style("font-size", "14px");
 
         _self.svg = d3.select("#" + _self.parentId).append("div")
             .style("overflow", "scroll")
@@ -73,7 +79,7 @@ Bar.prototype.updateVisualization = function (data) {
             .rangeBands([0, _self.height]);
 
         //_self.barH = _self.height / _self.targetData.length;
-        _self.barH = 27;
+        _self.barH = 24;
 
         _self.bars = _self.svg.selectAll("g")
             .data(_self.targetData)
@@ -87,7 +93,19 @@ Bar.prototype.updateVisualization = function (data) {
                 return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
             .attr("height", _self.barH - 5)
-            .attr("fill", "#9ecae1");
+            .attr("fill", "#9ecae1")
+            .on("click", function () {
+
+                var query = new Query({
+                    index: _self.cols[0],
+                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
+                    operator: "equal",
+                    logic: "OR"
+                });
+
+                setGlobalQuery(query, 1);
+
+            });
 
         _self.bars.append("text")
             .attr("x", function (d) {
@@ -124,7 +142,10 @@ Bar.prototype.updateVisualization = function (data) {
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.targetData, function (d) {
-                return Math.pow(d[_self.cols[1]], 1);
+                if (d[_self.cols[0]] != "")
+                    return d[_self.cols[1]];
+                
+                return 0;
             })])
             .range([0, _self.width]);
         
@@ -144,7 +165,19 @@ Bar.prototype.updateVisualization = function (data) {
                 return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
             .attr("height", _self.barH - 5)
-            .attr("fill", "#9ecae1");
+            .attr("fill", "#9ecae1")
+            .on("click", function () {
+
+                var query = new Query({
+                    index: _self.cols[0],
+                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
+                    operator: "equal",
+                    logic: "OR"
+                });
+
+                setGlobalQuery(query, 1);
+
+            });
             
         rects.append("text")
             .attr("x", function (d) {
