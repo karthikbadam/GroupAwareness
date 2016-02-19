@@ -335,7 +335,7 @@ BaryMap.prototype.createViz = function () {
                 }
             })
             .attr('fill', '#222')
-            .style('font-size', "14px")
+            .style('font-size', "11px")
             .text(_self.trueCols[i].replace(/_/g, " "));
 
     }
