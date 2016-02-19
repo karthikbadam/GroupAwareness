@@ -109,8 +109,8 @@ ParallelCoord.prototype.createViz = function () {
             return (_self.y[d] = d3.scale.ordinal()
                 .domain(_self.data.map(function (p) {
                     return p["_id"][d];
-                }).slice(0,_self.height))
-                .rangeRoundBands([_self.height, 0]));
+                }))
+                .rangePoints([_self.height, 0]));
         }
     }));
 
@@ -124,7 +124,7 @@ ParallelCoord.prototype.createViz = function () {
         .style("fill", "none")
         .style("stroke", "#ddd")
         .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.05);
+        .style("stroke-opacity", 0.02);
 
     // Add a group element for each dimension.
     var g = _self.g = _self.svg.selectAll(".dimension")
