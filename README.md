@@ -5,7 +5,7 @@
 To deploy this application, you must have [Node.js](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.org/) installed.
 
 1. Open the project folder through the command prompt or terminal. `cd PATH/TO/FOLDER`
-2. Run `npm install` to install dependencies.
+2. Run `npm install` to install dependencies. Use `sudo` if some permission issues show up.
 
 This takes care of installing all the application dependencies, which are listed in the package.json file.
 
