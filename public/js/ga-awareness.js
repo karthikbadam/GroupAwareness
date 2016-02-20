@@ -27,7 +27,7 @@ crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
 //var baryVertices = [gross, budget, tomatoRating, imdbvotes, sales];
-var baryVertices = ["Neighborhood", "Description", "Location", "Post"];
+var baryVertices = ["District", "Description", "Weapon"];
 
 var width = 0;
 
@@ -39,7 +39,8 @@ var colorscale = d3.scale.category10();
 
 // awareness visualization
 var awarenessViz;
-var awarenessType = 2; // 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
+var awarenessType = 2; 
+// 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
 
 // user interactions
 var interactions = [{

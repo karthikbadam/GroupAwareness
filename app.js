@@ -100,98 +100,138 @@ crimeMeta["lon"] = "Longitude";
 
 var crimeStream = fs.createReadStream("public/data/crime.csv");
 
+
+MongoClient.connect(mongourlMovies, function (err, db) {
+    assert.equal(null, err);
+    checkMovies(db, function () {
+        db.close();
+    });
+});
+
+MongoClient.connect(mongourlCrime, function (err, db) {
+    assert.equal(null, err);
+    checkCrime(db, function () {
+        db.close();
+    });
+});
+
+function checkMovies(db, callback) {
+
+    db.collection('movies').count(function (err, count) {
+        if (count == 0) {
+
+            console.log("checked")
+            initializeCrime(db, callback);
+
+        }
+    });
+}
+
+function checkCrime(db, callback) {
+
+    db.collection('crime').count(function (err, count) {
+        if (count == 0) {
+
+            console.log("checked")
+            initializeCrime(db, callback);
+
+        }
+    });
+
+
+
+}
+
 function initializeCrime(db, callback) {
-    
+
     var END = false;
-    if (FIRST_TIME_EXECUTED) {
-        var parseDate = d3.time.format("%m/%d/%y").parse;
-        var parseYear = d3.time.format("%Y").parse;
+    var parseDate = d3.time.format("%m/%d/%y").parse;
+    var parseYear = d3.time.format("%Y").parse;
 
-        var i = 1;
-        var tempi = 1;
-        var csvStream = csv
-            .fromStream(crimeStream, {
-                headers: true
-            })
-            .on("data", function (d) {
+    var i = 1;
+    var tempi = 1;
+    var csvStream = csv
+        .fromStream(crimeStream, {
+            headers: true
+        })
+        .on("data", function (d) {
 
-                var temp = {};
-                temp[crimeMeta["id"]] = i;
-                temp[crimeMeta["date"]] = "" + parseDate(d[crimeMeta["date"]]);
-                temp[crimeMeta["code"]] = d[crimeMeta["code"]];
-                temp[crimeMeta["time"]] = d[crimeMeta["time"]];
-                temp[crimeMeta["location"]] = d[crimeMeta["location"]];
-                temp[crimeMeta["description"]] = d[crimeMeta["description"]];
-                temp[crimeMeta["weapon"]] = d[crimeMeta["weapon"]];
-                temp[crimeMeta["post"]] = d[crimeMeta["post"]];
-                temp[crimeMeta["district"]] = d[crimeMeta["district"]];
-                temp[crimeMeta["neighborhood"]] = d[crimeMeta["neighborhood"]];
-                temp[crimeMeta["lat"]] = parseFloat(d[crimeMeta["lat"]]);
-                temp[crimeMeta["lon"]] = parseFloat(d[crimeMeta["lon"]]);
-                i = i+1;
-                
-                console.log(temp);
+            var temp = {};
+            temp[crimeMeta["id"]] = i;
+            temp[crimeMeta["date"]] = "" + parseDate(d[crimeMeta["date"]]);
+            temp[crimeMeta["code"]] = d[crimeMeta["code"]];
+            temp[crimeMeta["time"]] = d[crimeMeta["time"]];
+            temp[crimeMeta["location"]] = d[crimeMeta["location"]];
+            temp[crimeMeta["description"]] = d[crimeMeta["description"]];
+            temp[crimeMeta["weapon"]] = d[crimeMeta["weapon"]];
+            temp[crimeMeta["post"]] = d[crimeMeta["post"]];
+            temp[crimeMeta["district"]] = d[crimeMeta["district"]];
+            temp[crimeMeta["neighborhood"]] = d[crimeMeta["neighborhood"]];
+            temp[crimeMeta["lat"]] = parseFloat(d[crimeMeta["lat"]]);
+            temp[crimeMeta["lon"]] = parseFloat(d[crimeMeta["lon"]]);
+            i = i + 1;
 
-                db.collection('crime')
-                    .insertOne(temp,
-                        function (err, result) {
-                            assert.equal(err, null);
-                            console.log("Inserted a document");
-                            tempi++;
-                    
-                            if (tempi == i) {
-                                console.log("CREATED THE DATABASE");
-                                callback();   
-                            }
-                            
-                        });
-            })
-            .on("end", function () {
-                
-            });
-    }
+            console.log(temp);
+
+            db.collection('crime')
+                .insertOne(temp,
+                    function (err, result) {
+                        assert.equal(err, null);
+                        console.log("Inserted a document");
+                        tempi++;
+
+                        if (tempi == i) {
+                            console.log("CREATED THE DATABASE");
+                            callback();
+                        }
+
+                    });
+        })
+        .on("end", function () {
+
+        });
+
 }
 
 function initializeMovies(db, callback) {
-    if (FIRST_TIME_EXECUTED) {
-        var parseDate = d3.time.format("%d-%b-%y").parse;
-        var parseYear = d3.time.format("%Y").parse;
+    var parseDate = d3.time.format("%d-%b-%y").parse;
+    var parseYear = d3.time.format("%Y").parse;
 
-        var obj;
-        fs.readFile("public/data/movies.json", 'utf8', function (err, data) {
-            if (err) throw err;
-            obj = JSON.parse(data);
+    var obj;
+    fs.readFile("public/data/movies.json", 'utf8', function (err, data) {
+        if (err) throw err;
+        obj = JSON.parse(data);
 
-            for (var i = 0; i < obj.length; i++) {
-                var d = obj[i];
+        for (var i = 0; i < obj.length; i++) {
+            var d = obj[i];
 
-                var temp = {};
-                temp[moviesMeta["gross"]] = +d[moviesMeta["gross"]];
-                temp[moviesMeta["ratings"]] = +d[moviesMeta["ratings"]];
-                temp[moviesMeta["budget"]] = +d[moviesMeta["budget"]];
-                if (("" + d[moviesMeta["date"]]).split("-").length == 3) {
-                    temp[moviesMeta["date"]] = "" + parseDate(d[moviesMeta["date"]]);
-                } else {
-                    temp[moviesMeta["date"]] = "" + parseYear(("" + d[moviesMeta["date"]]));
-                }
-                temp[moviesMeta["director"]] = d[moviesMeta["director"]];
-                temp[moviesMeta["genre"]] = d[moviesMeta["genre"]];
-                temp[moviesMeta["sales"]] = d[moviesMeta["sales"]];
-                temp[moviesMeta["runningTime"]] = d[moviesMeta["runningTime"]];
-                temp[moviesMeta["tomatoRating"]] = d[moviesMeta["tomatoRating"]];
-                temp[moviesMeta["imdbvotes"]] = d[moviesMeta["imdbvotes"]];
-
-                console.log(temp);
-
-                //add to database
-                db.collection('movies')
-                    .insertOne(temp,
-                        function (err, result) {
-                            assert.equal(err, null);
-                        });
+            var temp = {};
+            temp[moviesMeta["gross"]] = +d[moviesMeta["gross"]];
+            temp[moviesMeta["ratings"]] = +d[moviesMeta["ratings"]];
+            temp[moviesMeta["budget"]] = +d[moviesMeta["budget"]];
+            if (("" + d[moviesMeta["date"]]).split("-").length == 3) {
+                temp[moviesMeta["date"]] = "" + parseDate(d[moviesMeta["date"]]);
+            } else {
+                temp[moviesMeta["date"]] = "" + parseYear(("" + d[moviesMeta["date"]]));
             }
-        });
-    }
+            temp[moviesMeta["director"]] = d[moviesMeta["director"]];
+            temp[moviesMeta["genre"]] = d[moviesMeta["genre"]];
+            temp[moviesMeta["sales"]] = d[moviesMeta["sales"]];
+            temp[moviesMeta["runningTime"]] = d[moviesMeta["runningTime"]];
+            temp[moviesMeta["tomatoRating"]] = d[moviesMeta["tomatoRating"]];
+            temp[moviesMeta["imdbvotes"]] = d[moviesMeta["imdbvotes"]];
+
+            console.log(temp);
+
+            //add to database
+            db.collection('movies')
+                .insertOne(temp,
+                    function (err, result) {
+                        assert.equal(err, null);
+                    });
+        }
+    });
+
 }
 
 // get all data based on a query of specific dimensions
@@ -297,7 +337,7 @@ function queryCrime(db, query, callback) {
             ]);
 
     } else {
-        
+
         console.log(groupID);
 
         var data = db.collection("crime")
@@ -308,7 +348,7 @@ function queryCrime(db, query, callback) {
                     }
                 }
             ]);
-        
+
     }
 
     data.toArray(function (err, docs) {
@@ -356,20 +396,6 @@ app.get('/getCrime', function (req, res, next) {
 
 });
 
-
-MongoClient.connect(mongourlMovies, function (err, db) {
-    assert.equal(null, err);
-    initializeMovies(db, function () {
-        db.close();
-    });
-});
-
-MongoClient.connect(mongourlCrime, function (err, db) {
-    assert.equal(null, err);
-    initializeCrime(db, function () {
-        db.close();
-    });
-});
 
 // parse query string
 function parseQueryString(params) {

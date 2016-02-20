@@ -25,8 +25,8 @@ var visuals = [
     ['Weapon'],
     ['District'],
     ['Latitude', 'Longitude'],
-    ['Location'],
     ['CrimeCode'],
+    ['Post'],
     ['CrimeDate']
 ];
 

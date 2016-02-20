@@ -94,13 +94,14 @@ Bar.prototype.updateVisualization = function (data) {
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1")
+            .style("cursor", "pointer")
             .on("click", function () {
 
                 var query = new Query({
                     index: _self.cols[0],
                     value: d3.select(this)[0][0].__data__[_self.cols[0]],
                     operator: "equal",
-                    logic: "OR"
+                    logic: "AND"
                 });
 
                 setGlobalQuery(query, 1);
@@ -130,8 +131,21 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("fill", "#222")
             .attr("text-anchor", "end")
             .attr('class', 'name')
+            .style("cursor", "pointer")
             .text(function (d) {
                 return d[_self.cols[0]];
+            })
+            .on("click", function () {
+
+                var query = new Query({
+                    index: _self.cols[0],
+                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
+                    operator: "equal",
+                    logic: "AND"
+                });
+
+                setGlobalQuery(query, 1);
+
             });
 
     } else {
@@ -149,7 +163,7 @@ Bar.prototype.updateVisualization = function (data) {
             })])
             .range([0, _self.width]);
         
-         _self.y = d3.scale.ordinal()
+        _self.y = d3.scale.ordinal()
             .domain(_self.targetData.map(function (d) {
                 return d[_self.cols[0]];
             }))
@@ -166,13 +180,14 @@ Bar.prototype.updateVisualization = function (data) {
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1")
+            .style("cursor", "pointer")
             .on("click", function () {
 
                 var query = new Query({
                     index: _self.cols[0],
                     value: d3.select(this)[0][0].__data__[_self.cols[0]],
                     operator: "equal",
-                    logic: "OR"
+                    logic: "AND"
                 });
 
                 setGlobalQuery(query, 1);
@@ -196,7 +211,20 @@ Bar.prototype.updateVisualization = function (data) {
                 return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
             .attr("height", _self.barH - 5)
-            .attr("fill", "#9ecae1");
+            .attr("fill", "#9ecae1")
+            .style("cursor", "pointer")
+            .on("click", function () {
+
+                var query = new Query({
+                    index: _self.cols[0],
+                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
+                    operator: "equal",
+                    logic: "AND"
+                });
+
+                setGlobalQuery(query, 1);
+
+            });
 
         allBars.select("text")
             .attr("x", function (d) {
@@ -222,8 +250,21 @@ Bar.prototype.updateVisualization = function (data) {
             })
             .attr("fill", "#222")
             .attr("text-anchor", "end")
+            .style("cursor", "pointer")
             .text(function (d) {
                 return d[_self.cols[0]];
+            })
+            .on("click", function () {
+
+                var query = new Query({
+                    index: _self.cols[0],
+                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
+                    operator: "equal",
+                    logic: "OR"
+                });
+
+                setGlobalQuery(query, 1);
+
             });
 
         allText.attr("x", _self.margin.left - 5)
@@ -233,8 +274,21 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("fill", "#222")
             .attr("text-anchor", "end")
             .attr('class', 'name')
+            .style("cursor", "pointer")
             .text(function (d) {
                 return d[_self.cols[0]];
+            })
+            .on("click", function () {
+
+                var query = new Query({
+                    index: _self.cols[0],
+                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
+                    operator: "equal",
+                    logic: "OR"
+                });
+
+                setGlobalQuery(query, 1);
+
             });
 
     }

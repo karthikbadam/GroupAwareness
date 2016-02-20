@@ -11,53 +11,64 @@ function BaryMap(options) {
     _self.dataMax = {};
 
     _self.isNumeric = {};
-    
+
     _self.trueCols = [];
-    
+
     _self.colMapping = {};
 
-    for (var i = 0; i < _self.data.length; i++) {
+    for (var j = 0; j < _self.cols.length; j++) {
 
-        for (var j = 0; j < _self.cols.length; j++) {
-                        
+        for (var i = 0; i < _self.data.length; i++) {
+
             var key = _self.cols[j];
-            
+
             var value = _self.data[i]["_id"][key];
-            
+
             if (value == "" || value == "NaN" || value == "undefined") {
-            
-                continue;   
-            
+
+                continue;
+
             } else {
 
                 _self.isNumeric[key] = $.isNumeric(value);
                 
+                break;
+
             }
         }
     }
-        
+
     for (var j = 0; j < _self.cols.length; j++) {
-                        
+
         var key = _self.cols[j];
-        
+
         if (_self.isNumeric[key]) {
-            
+
             _self.trueCols.push(key);
             continue;
         }
-        
+
         //get top three dimensions in this
         var processed = processData(_self.data, key);
-        var temp = processed.slice(0, 3); 
-        
+        var temp = processed.slice(0, 2);
+
         temp.forEach(function (d) {
-            
+
             _self.trueCols.push(key + ": " + d[key]);
             _self.isNumeric[d[key]] = false;
-            
-            _self.colMapping[key + ": " + d[key]] = key; 
-            
+
+            _self.colMapping[key + ": " + d[key]] = key;
+
         });
+        
+//        if (temp.length < processed.length) {
+//            
+//            _self.trueCols.push(key + ": " + "Remaining");
+//            _self.isNumeric[d[key]] = false;
+//
+//            _self.colMapping[key + ": " + "Remaining"] = key;
+//            
+//        }
     }
 
 
@@ -66,7 +77,7 @@ function BaryMap(options) {
         for (var j = 0; j < _self.cols.length; j++) {
 
             var key = _self.cols[j];
-            
+
             if (!_self.isNumeric[key]) {
                 continue;
             }
@@ -104,7 +115,7 @@ function BaryMap(options) {
         for (var j = 0; j < _self.trueCols.length; j++) {
 
             var key = _self.trueCols[j];
-            
+
             if (_self.isNumeric[key]) {
 
                 if (_self.data[i]["_id"][key] == null)
@@ -115,13 +126,17 @@ function BaryMap(options) {
                 sum += _self.dataTrans[i][key];
 
             } else {
-             
+
                 if (_self.colMapping[key] + ": " + _self.data[i]["_id"][_self.colMapping[key]] == key) {
-                    _self.dataTrans[i][key] = 1;
-                } else {
-                    _self.dataTrans[i][key] = 0;
-                }
                 
+                    _self.dataTrans[i][key] = 1;
+                
+                } else {
+                
+                    _self.dataTrans[i][key] = 0;
+                
+                }
+
                 sum += _self.dataTrans[i][key];
             }
         }
@@ -131,12 +146,13 @@ function BaryMap(options) {
             var key = _self.trueCols[j];
 
             if (sum != 0) {
-                
+
                 _self.dataTrans[i][key] = _self.dataTrans[i][key] / sum;
-                
+
             } else {
-                
+
                 _self.dataTrans[i][key] = 1 / _self.trueCols.length;
+                
             }
 
         }
@@ -151,7 +167,7 @@ BaryMap.prototype.transform = function (data) {
     var _self = this;
 
     var dataTrans = new Array(data.length);
-    
+
     for (var i = 0; i < data.length; i++) {
 
         var sum = 0;
@@ -161,7 +177,7 @@ BaryMap.prototype.transform = function (data) {
         for (var j = 0; j < _self.trueCols.length; j++) {
 
             var key = _self.trueCols[j];
-            
+
             if (_self.isNumeric[key]) {
 
                 if (data[i]["_id"][key] == null)
@@ -172,13 +188,13 @@ BaryMap.prototype.transform = function (data) {
                 sum += dataTrans[i][key];
 
             } else {
-             
+
                 if (_self.colMapping[key] + ": " + _self.data[i]["_id"][_self.colMapping[key]] == key) {
                     dataTrans[i][key] = 1;
                 } else {
                     dataTrans[i][key] = 0;
                 }
-                
+
                 sum += dataTrans[i][key];
 
             }
@@ -189,11 +205,11 @@ BaryMap.prototype.transform = function (data) {
             var key = _self.trueCols[j];
 
             if (sum != 0) {
-                
+
                 dataTrans[i][key] = dataTrans[i][key] / sum;
-                
+
             } else {
-                
+
                 dataTrans[i][key] = 1 / _self.trueCols.length;
             }
 
@@ -234,23 +250,23 @@ BaryMap.prototype.createUser = function (data, user) {
     customHull.y(function (d) {
         return d.y;
     });
-    
-    
-//    _self.tempData.forEach(function (d, i) {
-//        _self.container.append('circle')
-//            .attr('r', 3+user)
-//            .attr('cx', d.x)
-//            .attr('cy', d.y)
-//            .attr('fill', 'transparent')
-//            .attr('fill-opacity', 0.3)
-//            .attr("stroke", function (d) {
-//                return colorscale(user);
-//            })
-//            .attr("stroke-opacity", 0.7)
-//            .attr("stroke-width", "1px");
-//    });
-    
-    
+
+
+    //    _self.tempData.forEach(function (d, i) {
+    //        _self.container.append('circle')
+    //            .attr('r', 3+user)
+    //            .attr('cx', d.x)
+    //            .attr('cy', d.y)
+    //            .attr('fill', 'transparent')
+    //            .attr('fill-opacity', 0.3)
+    //            .attr("stroke", function (d) {
+    //                return colorscale(user);
+    //            })
+    //            .attr("stroke-opacity", 0.7)
+    //            .attr("stroke-width", "1px");
+    //    });
+
+
 
     var hull = _self.hull = _self.container.append("path").attr("class", "hull");
 
@@ -312,11 +328,11 @@ BaryMap.prototype.createViz = function () {
 
     for (var i = 0; i < _self.vertices.length; i++) {
 
-//        _self.container.append('circle')
-//            .attr('r', 8)
-//            .attr('cx', _self.vertices[i][0])
-//            .attr('cy', _self.vertices[i][1])
-//            .attr('fill', '#4292c6');
+        //        _self.container.append('circle')
+        //            .attr('r', 8)
+        //            .attr('cx', _self.vertices[i][0])
+        //            .attr('cy', _self.vertices[i][1])
+        //            .attr('fill', '#4292c6');
 
         _self.container.append('text')
             .attr('x', function () {
@@ -420,13 +436,13 @@ function processData(data, col1, col2) {
 
 
     returnData.sort(function (a, b) {
-            if (a["value"] <
-                b["value"]) return 1;
-            return -1;
-        });
-    
+        if (a["value"] <
+            b["value"]) return 1;
+        return -1;
+    });
+
     console.log(returnData);
-    
-    
+
+
     return returnData;
 }
