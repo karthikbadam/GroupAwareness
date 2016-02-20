@@ -120,8 +120,7 @@ function checkMovies(db, callback) {
     db.collection('movies').count(function (err, count) {
         if (count == 0) {
 
-            console.log("checked")
-            initializeCrime(db, callback);
+            initializeMovies(db, callback);
 
         }
     });
@@ -132,14 +131,10 @@ function checkCrime(db, callback) {
     db.collection('crime').count(function (err, count) {
         if (count == 0) {
 
-            console.log("checked")
             initializeCrime(db, callback);
 
         }
     });
-
-
-
 }
 
 function initializeCrime(db, callback) {
@@ -171,7 +166,7 @@ function initializeCrime(db, callback) {
             temp[crimeMeta["lon"]] = parseFloat(d[crimeMeta["lon"]]);
             i = i + 1;
 
-            console.log(temp);
+            //console.log(temp);
 
             db.collection('crime')
                 .insertOne(temp,
@@ -221,7 +216,7 @@ function initializeMovies(db, callback) {
             temp[moviesMeta["tomatoRating"]] = d[moviesMeta["tomatoRating"]];
             temp[moviesMeta["imdbvotes"]] = d[moviesMeta["imdbvotes"]];
 
-            console.log(temp);
+            //console.log(temp);
 
             //add to database
             db.collection('movies')
