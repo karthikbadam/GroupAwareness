@@ -11,7 +11,7 @@ This takes care of installing all the application dependencies, which are listed
 
 ## How to Run
 
-1. Before deploying the application, have a MongoDB service running on the background by opening your terminal or command prompt and running `mongod` or `sudo mongod` (depending on your access privileges).
+1. Before deploying the application, have a MongoDB service running on the background by opening your terminal or command prompt and running `mongod` or `sudo mongod` (depending on your access privileges or whatever works).
 2. Now, open the project folder through a new command prompt or terminal tab. `cd PATH/TO/FOLDER`
 3. Run `npm start` to start the application at port 3000. 
 
