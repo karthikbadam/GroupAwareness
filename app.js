@@ -10,17 +10,10 @@ var d3 = require('d3');
 var url = require('url');
 var qs = require('qs');
 
-//var citiesToLoc = require('./maps.js').citiesToLoc;
-
-//var routes = require('./routes/index');
-//var users = require('./routes/users');
-
 // connecting to Mongodb database running instance
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-
-var FIRST_TIME_EXECUTED = false;
 
 // connect to the flights database in mongodb
 var mongourlMovies = 'mongodb://127.0.0.1:27017/movies';
