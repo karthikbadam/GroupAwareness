@@ -28,7 +28,6 @@ function Map(options) {
     var handler = function (e) {
         //e.preventDefault();
         //e.stopPropagation();
-        
         _self.updateVisualization(_self.data);
     }
 
@@ -38,8 +37,8 @@ function Map(options) {
     _self.map.on('dragend', handler);
     _self.map.on('zoomstart', handler);
     _self.map.on('zoomend', handler);
-    _self.map.on('viewreset', handler);
-    _self.map.on('autopanstart', handler);
+    //_self.map.on('viewreset', handler);
+    //_self.map.on('autopanstart', handler);
 
 
 }

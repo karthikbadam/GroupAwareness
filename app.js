@@ -44,6 +44,10 @@ app.get('/', function (req, res, next) {
     res.render('crime.html', {});
 });
 
+app.get('/mobile1', function (req, res, next) {
+    res.render('crime.html', {});
+});
+
 app.get('/visualization', function (req, res, next) {
     res.render('largedisplay.html', {});
 });

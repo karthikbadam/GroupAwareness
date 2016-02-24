@@ -86,7 +86,6 @@ function setGlobalQuery(query, propagate) {
     if (propagate) {
         getDatafromQuery(queryStack);
     }
-
 }
 
 
@@ -94,8 +93,11 @@ function clearRecentQuery() {
     if (queryStack.length == 0)
         return;
 
-    if (queryStack.length == 1) 
+    if (queryStack.length == 1) {
+        queryStack.pop();
         getDatafromQuery("empty");
+        return;
+    }
     
     queryStack.pop();
     historyQueryStack.pop();
@@ -108,14 +110,11 @@ function clearRecentQuery() {
     //touchSync.push(content);
 
     // update all other visualizations
-    
-
 }
 
 $(document).keypress("u",function(e) {
 
     clearRecentQuery();
-    //if(e.ctrlKey)
     
 });
 
@@ -256,7 +255,6 @@ function getDatafromQuery(queryList) {
                         });
 
                         visualizations[i].updateVisualization(processed);
-
                     }
 
                 } else {
