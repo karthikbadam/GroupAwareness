@@ -26,8 +26,7 @@ function Map(options) {
         .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
 
     var handler = function (e) {
-        //e.preventDefault();
-        //e.stopPropagation();
+    
         _self.updateVisualization(_self.data);
     }
 
@@ -37,7 +36,7 @@ function Map(options) {
     _self.map.on('dragend', handler);
     _self.map.on('zoomstart', handler);
     _self.map.on('zoomend', handler);
-    //_self.map.on('viewreset', handler);
+    _self.map.on('viewreset', handler);
     //_self.map.on('autopanstart', handler);
 
 
@@ -51,26 +50,28 @@ Map.prototype.updateVisualization = function (data) {
     
     var opacity = (_self.map.getZoom() + 2 - 11)/10;
     
-    _self.topBnd = d3.max(data, function (d) {return d["key"][_self.cols[0]];});
-    _self.bottomBnd = d3.min(data, function (d) {return d["key"][_self.cols[0]];});
-    _self.leftBnd = d3.min(data, function (d) {return d["key"][_self.cols[1]];});
-    _self.rightBnd = d3.max(data, function (d) {return d["key"][_self.cols[1]];});
+    _self.right = d3.max(data, function (d) {return d["key"][_self.cols[0]];});
+    _self.left = d3.min(data, function (d) {return d["key"][_self.cols[0]];});
+    _self.top = d3.max(data, function (d) {return d["key"][_self.cols[1]];});
+    _self.bottom = d3.min(data, function (d) {return d["key"][_self.cols[1]];});
     
-    _self.topRight = _self.map.latLngToLayerPoint(new L.LatLng(_self.topBnd, _self.rightBnd));
-    _self.bottomLeft = _self.map.latLngToLayerPoint(new L.LatLng(_self.bottomBnd, _self.leftBnd));
-
-    _self.marginLeft = _self.bottomLeft.x;
-    _self.marginTop = _self.topRight.y;
+    _self.bottomRight = _self.map.latLngToLayerPoint(new L.LatLng(_self.left, _self.top));
+    _self.topLeft = _self.map.latLngToLayerPoint(new L.LatLng(_self.right, _self.bottom));
+    
+    _self.marginLeft = _self.topLeft.x;
+    _self.marginTop = _self.topLeft.y;
+    
+    //_self.map.fitBounds(new L.LatLngBounds(new L.LatLng(_self.left, _self.top), new L.LatLng(_self.right, _self.bottom)));
     
     if (!_self.svg || _self.svg.select("circle").empty()) {
         
         d3.select(".leaflet-tile-pane").style("opacity", 0.7);
 
         var svg = _self.svg = d3.select(_self.map.getPanes().overlayPane).append("svg")
-            .attr("width", _self.topRight.x - _self.bottomLeft.x)
-            .attr("height", _self.bottomLeft.y - _self.topRight.y)
-            .style("margin-left", _self.bottomLeft.x + "px")
-            .style("margin-top", _self.topRight.y + "px")
+            .attr("width", _self.bottomRight.x - _self.topLeft.x)
+            .attr("height", _self.bottomRight.y - _self.topLeft.y)
+            .style("margin-left", _self.marginLeft + "px")
+            .style("margin-top", _self.marginTop + "px")
             .style("background", "transparent");
 
         //append circle
@@ -116,10 +117,10 @@ Map.prototype.updateVisualization = function (data) {
         
     } else {
         
-        _self.svg.attr("width", _self.topRight.x - _self.bottomLeft.x)
-            .attr("height", _self.bottomLeft.y - _self.topRight.y)
-            .style("margin-left", _self.bottomLeft.x + "px")
-            .style("margin-top", _self.topRight.y + "px");
+        _self.svg.attr("width", _self.bottomRight.x - _self.topLeft.x)
+            .attr("height", _self.bottomRight.y - _self.topLeft.y)
+            .style("margin-left", _self.marginLeft + "px")
+            .style("margin-top", _self.marginTop + "px");
 
         var crimeSpots = _self.svg
             .selectAll(".spot")
