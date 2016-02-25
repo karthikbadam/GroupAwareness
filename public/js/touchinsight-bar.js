@@ -14,29 +14,29 @@ function Bar(options) {
         top: 5,
         right: 30,
         bottom: 30,
-        left: 70
+        left: 50
     };
 
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
-    
+
     _self.myFormat = d3.format(',');
-    
+
     _self.defaultData = null;
 }
 
 Bar.prototype.updateVisualization = function (data) {
 
     var _self = this;
-    
+
     _self.targetData = data;
-    
+
     if (_self.defaultData != null) {
-        _self.defaultData = data;   
+        _self.defaultData = data;
     }
-    
+
     d3.select("#" + _self.parentId).style("overflow", "hidden");
 
     if (!_self.svg || _self.svg.select("rect").empty()) {
@@ -64,7 +64,7 @@ Bar.prototype.updateVisualization = function (data) {
             .domain([0, d3.max(_self.targetData, function (d) {
                 if (d[_self.cols[0]] != "")
                     return d[_self.cols[1]];
-                
+
                 return 0;
             })])
             .range([0, _self.width]);
@@ -73,7 +73,7 @@ Bar.prototype.updateVisualization = function (data) {
             .domain(_self.targetData.map(function (d) {
                 if (d[_self.cols[0]] != "")
                     return d[_self.cols[0]];
-            
+
                 return 0;
             }))
             .rangeBands([0, _self.height]);
@@ -124,6 +124,7 @@ Bar.prototype.updateVisualization = function (data) {
         _self.svg.selectAll("text.name")
             .data(_self.targetData)
             .enter().append("text")
+            .style("width", _self.margin.left)
             .attr("x", _self.margin.left - 5)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
@@ -131,8 +132,13 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("fill", "#222")
             .attr("text-anchor", "end")
             .attr('class', 'name')
+            .style('text-overflow', 'ellipsis')
             .style("cursor", "pointer")
             .text(function (d) {
+                if (d[_self.cols[0]].length * 3 > _self.margin.left) {
+                    return d[_self.cols[0]].substr(0, 12) + "...";
+                }
+
                 return d[_self.cols[0]];
             })
             .on("click", function () {
@@ -158,11 +164,11 @@ Bar.prototype.updateVisualization = function (data) {
             .domain([0, d3.max(_self.targetData, function (d) {
                 if (d[_self.cols[0]] != "")
                     return d[_self.cols[1]];
-                
+
                 return 0;
             })])
             .range([0, _self.width]);
-        
+
         _self.y = d3.scale.ordinal()
             .domain(_self.targetData.map(function (d) {
                 return d[_self.cols[0]];
@@ -193,7 +199,7 @@ Bar.prototype.updateVisualization = function (data) {
                 setGlobalQuery(query, 1);
 
             });
-            
+
         rects.append("text")
             .attr("x", function (d) {
                 return 5;
@@ -203,7 +209,7 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return  _self.myFormat(Math.round(d[_self.cols[1]]));
+                return _self.myFormat(Math.round(d[_self.cols[1]]));
             })
             .style("pointer-events", "none");
 
@@ -252,6 +258,10 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("text-anchor", "end")
             .style("cursor", "pointer")
             .text(function (d) {
+                if (d[_self.cols[0]].length * 3 > _self.margin.left) {
+                    return d[_self.cols[0]].substr(0, 12) + "...";
+                }
+
                 return d[_self.cols[0]];
             })
             .on("click", function () {
@@ -276,6 +286,10 @@ Bar.prototype.updateVisualization = function (data) {
             .attr('class', 'name')
             .style("cursor", "pointer")
             .text(function (d) {
+                if (d[_self.cols[0]].length * 3 > _self.margin.left) {
+                    return d[_self.cols[0]].substr(0, 12) + "...";
+                }
+
                 return d[_self.cols[0]];
             })
             .on("click", function () {

@@ -97,7 +97,7 @@ Map.prototype.updateVisualization = function (data, flag) {
             .attr("height", _self.bottomRight.y - _self.topLeft.y + 10)
             .style("margin-left", _self.marginLeft + "px")
             .style("margin-top", _self.marginTop + "px")
-            .style("background", "transparent");
+            .style("background", "rgba(255, 255, 255, 0.5)");
 
         //append circle
         _self.svg
