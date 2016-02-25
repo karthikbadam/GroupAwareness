@@ -50,15 +50,24 @@ Map.prototype.updateVisualization = function (data) {
     _self.data = data;
     
     var opacity = (_self.map.getZoom() + 2 - 11)/10;
+    
+    _self.topBnd = d3.max(data, function (d) {return d["key"][_self.cols[0]];});
+    _self.bottomBnd = d3.min(data, function (d) {return d["key"][_self.cols[0]];});
+    _self.leftBnd = d3.min(data, function (d) {return d["key"][_self.cols[1]];});
+    _self.rightBnd = d3.max(data, function (d) {return d["key"][_self.cols[1]];});
+    
+    _self.topRight = _self.map.latLngToLayerPoint(new L.LatLng(_self.topBnd, _self.rightBnd));
+    _self.bottomLeft = _self.map.latLngToLayerPoint(new L.LatLng(_self.bottomBnd, _self.leftBnd));
 
     if (!_self.svg || _self.svg.select("circle").empty()) {
         
         d3.select(".leaflet-tile-pane").style("opacity", 0.7);
 
         var svg = _self.svg = d3.select(_self.map.getPanes().overlayPane).append("svg")
-            .attr("width", _self.width + _self.margin.left + _self.margin.right)
-            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-            .style("background", "transparent");
+            .attr("width", _self.topRight.x - _self.bottomLeft.x)
+            .attr("height", _self.bottomLeft.y - _self.topRight.y)
+            .style("background", "transparent")
+            .append("g");
 
         //append circle
         _self.svg
