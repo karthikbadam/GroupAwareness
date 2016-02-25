@@ -26,50 +26,75 @@ function Map(options) {
         .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
 
     var handler = function (e) {
-    
-        _self.updateVisualization(_self.data);
+
+        _self.updateVisualization(_self.data, true);
     }
 
-    _self.map.on('movestart', handler);
-    _self.map.on('moveend', handler);
-    _self.map.on('dragstart', handler);
-    _self.map.on('dragend', handler);
+    _self.zoom = 11;
+
     _self.map.on('zoomstart', handler);
     _self.map.on('zoomend', handler);
     _self.map.on('viewreset', handler);
-    //_self.map.on('autopanstart', handler);
+    _self.map.on('autopanstart', handler);
 
 
 }
 
-Map.prototype.updateVisualization = function (data) {
+function computeZoom(ne, sw, pixelWidth) {
+    var GLOBE_WIDTH = 256; // a constant in Google's map projection
+    var west = sw.lng;
+    var east = ne.lng;
+    var angle = east - west;
+    if (angle < 0) {
+        angle += 360;
+    }
+    var zoom = Math.round(Math.log(pixelWidth * 360 / angle / GLOBE_WIDTH) / Math.LN2);
+
+    return zoom;
+}
+
+
+Map.prototype.updateVisualization = function (data, flag) {
 
     var _self = this;
 
     _self.data = data;
-    
-    var opacity = (_self.map.getZoom() + 2 - 11)/10;
-    
-    _self.right = d3.max(data, function (d) {return d["key"][_self.cols[0]];});
-    _self.left = d3.min(data, function (d) {return d["key"][_self.cols[0]];});
-    _self.top = d3.max(data, function (d) {return d["key"][_self.cols[1]];});
-    _self.bottom = d3.min(data, function (d) {return d["key"][_self.cols[1]];});
-    
+
+    var opacity = (_self.map.getZoom() + 2 - 11) / 10;
+
+    _self.right = d3.max(data, function (d) {
+        return d["key"][_self.cols[0]];
+    });
+    _self.left = d3.min(data, function (d) {
+        return d["key"][_self.cols[0]];
+    });
+    _self.top = d3.max(data, function (d) {
+        return d["key"][_self.cols[1]];
+    });
+    _self.bottom = d3.min(data, function (d) {
+        return d["key"][_self.cols[1]];
+    });
+
     _self.bottomRight = _self.map.latLngToLayerPoint(new L.LatLng(_self.left, _self.top));
     _self.topLeft = _self.map.latLngToLayerPoint(new L.LatLng(_self.right, _self.bottom));
+
+    _self.marginLeft = _self.topLeft.x - 5;
+    _self.marginTop = _self.topLeft.y - 5;
     
-    _self.marginLeft = _self.topLeft.x;
-    _self.marginTop = _self.topLeft.y;
+    if (flag == true) {
     
-    //_self.map.fitBounds(new L.LatLngBounds(new L.LatLng(_self.left, _self.top), new L.LatLng(_self.right, _self.bottom)));
-    
+    } else {
+        _self.map.fitBounds(new L.LatLngBounds(new L.LatLng(_self.left, _self.top), new L.LatLng(_self.right, _self.bottom)));
+
+    }
+
     if (!_self.svg || _self.svg.select("circle").empty()) {
-        
+
         d3.select(".leaflet-tile-pane").style("opacity", 0.7);
 
         var svg = _self.svg = d3.select(_self.map.getPanes().overlayPane).append("svg")
-            .attr("width", _self.bottomRight.x - _self.topLeft.x)
-            .attr("height", _self.bottomRight.y - _self.topLeft.y)
+            .attr("width", _self.bottomRight.x - _self.topLeft.x + 10)
+            .attr("height", _self.bottomRight.y - _self.topLeft.y + 10)
             .style("margin-left", _self.marginLeft + "px")
             .style("margin-top", _self.marginTop + "px")
             .style("background", "transparent");
@@ -112,15 +137,15 @@ Map.prototype.updateVisualization = function (data) {
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
             .attr("r", function (d) {
-            return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";           
-        });
-        
+                return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
+            });
+
     } else {
-        
-        _self.svg.attr("width", _self.bottomRight.x - _self.topLeft.x)
-            .attr("height", _self.bottomRight.y - _self.topLeft.y)
+
+        _self.svg.attr("width", _self.bottomRight.x - _self.topLeft.x + 10)
+            .attr("height", _self.bottomRight.y - _self.topLeft.y + 10)
             .style("margin-left", _self.marginLeft + "px")
-            .style("margin-top", _self.marginTop + "px");
+            .style("margin-top", _self.marginTop + "px")
 
         var crimeSpots = _self.svg
             .selectAll(".spot")
@@ -163,8 +188,8 @@ Map.prototype.updateVisualization = function (data) {
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
             .attr("r", function (d) {
-            return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";           
-        });
+                return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
+            });
 
         crimeSpots.attr("cx", function (d, i) {
                 var loc = d;
@@ -197,8 +222,8 @@ Map.prototype.updateVisualization = function (data) {
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
             .attr("r", function (d) {
-            return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";           
-        });
+                return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
+            });
 
     }
 
