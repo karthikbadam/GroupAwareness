@@ -59,6 +59,9 @@ Map.prototype.updateVisualization = function (data) {
     _self.topRight = _self.map.latLngToLayerPoint(new L.LatLng(_self.topBnd, _self.rightBnd));
     _self.bottomLeft = _self.map.latLngToLayerPoint(new L.LatLng(_self.bottomBnd, _self.leftBnd));
 
+    _self.marginLeft = _self.bottomLeft.x;
+    _self.marginTop = _self.topRight.y;
+    
     if (!_self.svg || _self.svg.select("circle").empty()) {
         
         d3.select(".leaflet-tile-pane").style("opacity", 0.7);
@@ -66,8 +69,9 @@ Map.prototype.updateVisualization = function (data) {
         var svg = _self.svg = d3.select(_self.map.getPanes().overlayPane).append("svg")
             .attr("width", _self.topRight.x - _self.bottomLeft.x)
             .attr("height", _self.bottomLeft.y - _self.topRight.y)
-            .style("background", "transparent")
-            .append("g");
+            .style("margin-left", _self.bottomLeft.x + "px")
+            .style("margin-top", _self.topRight.y + "px")
+            .style("background", "transparent");
 
         //append circle
         _self.svg
@@ -81,7 +85,7 @@ Map.prototype.updateVisualization = function (data) {
 
                 if (loc && loc["key"][_self.cols[0]]) {
                     var point = _self.map.latLngToLayerPoint(new L.LatLng(loc["key"][_self.cols[0]], loc["key"][_self.cols[1]]));
-                    return point.x;
+                    return point.x - _self.marginLeft;
                 }
 
                 return -10;
@@ -92,7 +96,7 @@ Map.prototype.updateVisualization = function (data) {
 
                 if (loc && loc["key"][_self.cols[1]]) {
                     var point = _self.map.latLngToLayerPoint(new L.LatLng(loc["key"][_self.cols[0]], loc["key"][_self.cols[1]]));
-                    return point.y;
+                    return point.y - _self.marginTop;
                 }
 
                 return -10;
@@ -111,6 +115,11 @@ Map.prototype.updateVisualization = function (data) {
         });
         
     } else {
+        
+        _self.svg.attr("width", _self.topRight.x - _self.bottomLeft.x)
+            .attr("height", _self.bottomLeft.y - _self.topRight.y)
+            .style("margin-left", _self.bottomLeft.x + "px")
+            .style("margin-top", _self.topRight.y + "px");
 
         var crimeSpots = _self.svg
             .selectAll(".spot")
@@ -127,7 +136,7 @@ Map.prototype.updateVisualization = function (data) {
 
                 if (loc && loc["key"][_self.cols[0]]) {
                     var point = _self.map.latLngToLayerPoint(new L.LatLng(loc["key"][_self.cols[0]], loc["key"][_self.cols[1]]));
-                    return point.x;
+                    return point.x - _self.marginLeft;
                 }
 
                 return -10;
@@ -138,7 +147,7 @@ Map.prototype.updateVisualization = function (data) {
 
                 if (loc && loc["key"][_self.cols[1]]) {
                     var point = _self.map.latLngToLayerPoint(new L.LatLng(loc["key"][_self.cols[0]], loc["key"][_self.cols[1]]));
-                    return point.y;
+                    return point.y - _self.marginTop;
                 }
 
                 return -10;
@@ -161,7 +170,7 @@ Map.prototype.updateVisualization = function (data) {
 
                 if (loc && loc["key"][_self.cols[0]]) {
                     var point = _self.map.latLngToLayerPoint(new L.LatLng(loc["key"][_self.cols[0]], loc["key"][_self.cols[1]]));
-                    return point.x;
+                    return point.x - _self.marginLeft;
                 }
 
                 return -10;
@@ -172,7 +181,7 @@ Map.prototype.updateVisualization = function (data) {
 
                 if (loc && loc["key"][_self.cols[1]]) {
                     var point = _self.map.latLngToLayerPoint(new L.LatLng(loc["key"][_self.cols[0]], loc["key"][_self.cols[1]]));
-                    return point.y;
+                    return point.y - _self.marginTop;
                 }
 
                 return -10;
