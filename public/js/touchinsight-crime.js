@@ -56,6 +56,25 @@ var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+//polychrome
+var polychrome;
+
+var startTime = Date.now();
+
+function randomString(len, charSet) {
+    len = len || 10;
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var randomString = '';
+    for (var i = 0; i < len; i++) {
+        var randomPoz = Math.floor(Math.random() * charSet.length);
+        randomString += charSet.substring(randomPoz, randomPoz + 1);
+    }
+    return randomString;
+}
+
+var device = "DESKTOP";
+
+var deviceId = randomString();
 
 function setGlobalQuery(query, propagate) {
 
@@ -85,6 +104,14 @@ function setGlobalQuery(query, propagate) {
     // update all other visualizations
     if (propagate) {
         getDatafromQuery(queryStack);
+    }
+    
+     //syncing between devices
+    var dquery = "empty";
+
+    if (JSON.stringify(query.getQueryString()) !=
+        JSON.stringify(dquery)) {
+        polychrome.push(query.getQueryString());
     }
 }
 
@@ -161,6 +188,15 @@ $(document).ready(function () {
     };
 
     getDatafromQuery("empty");
+    
+    var options = {};
+
+    options.callback = function (query, time, hostDevice) {
+
+        console.log("Synced");
+    }
+
+    polychrome = new Sync(options);
 
 });
 

@@ -10,6 +10,26 @@ var runningTime = "Running_Time_min";
 var tomatoRating = "Rotten_Tomatoes_Rating";
 var imdbvotes = "IMDB_Votes";
 
+//polychrome
+var polychrome;
+
+var startTime = Date.now();
+
+function randomString(len, charSet) {
+    len = len || 10;
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var randomString = '';
+    for (var i = 0; i < len; i++) {
+        var randomPoz = Math.floor(Math.random() * charSet.length);
+        randomString += charSet.substring(randomPoz, randomPoz + 1);
+    }
+    return randomString;
+}
+
+var device = "AWARENESS";
+
+var deviceId = randomString();
+
 //crime dataset
 // Crime
 var crimeMeta = {};
@@ -27,7 +47,7 @@ crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
 //var baryVertices = [gross, budget, tomatoRating, imdbvotes, sales];
-var baryVertices = ["District", "Description", "Weapon", "Post", "Latitude", "Longitude"];
+var baryVertices = ["District", "Description", "Weapon", "Post"];
 
 var width = 0;
 
@@ -82,7 +102,16 @@ $(document).ready(function () {
     };
 
     getDataFromQuery("empty");
+    
+    var options = {};
 
+    options.callback = function (query, time, hostDevice, deviceId) {
+        
+        createUserfromQueryList([query], deviceId);
+        
+    };
+    
+    polychrome = new Sync(options);
 
 });
 
@@ -153,9 +182,9 @@ function getDataFromQuery(queryList) {
 
         awarenessViz.createViz();
         
-        interactions.forEach(function (d, i) {
-            createUserfromQueryList(d.query, i+1);
-        });
+//        interactions.forEach(function (d, i) {
+//            createUserfromQueryList(d.query, i+1);
+//        });
         
 
     });

@@ -52,6 +52,8 @@ ParallelCoord.prototype.transform = function (data) {
 ParallelCoord.prototype.createUser = function (data, user) {
 
     var _self = this;
+    
+    d3.selectAll(".path" + user).remove();
 
     // Add blue foreground lines for focus.
     _self.foreground[user] = _self.svg.append("g")
