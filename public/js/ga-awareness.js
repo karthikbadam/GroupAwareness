@@ -27,7 +27,7 @@ crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
 //var baryVertices = [gross, budget, tomatoRating, imdbvotes, sales];
-var baryVertices = ["District", "Description", "Weapon"];
+var baryVertices = ["District", "Description", "Weapon", "Post", "Latitude", "Longitude"];
 
 var width = 0;
 

@@ -124,7 +124,7 @@ ParallelCoord.prototype.createViz = function () {
         .style("fill", "none")
         .style("stroke", "#ddd")
         .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.02);
+        .style("stroke-opacity", 0.05);
 
     // Add a group element for each dimension.
     var g = _self.g = _self.svg.selectAll(".dimension")
@@ -134,14 +134,14 @@ ParallelCoord.prototype.createViz = function () {
         .attr("transform", function (d) {
             return "translate(" + _self.x(d) + ")";
         })
-        .style("fill", "#aaa");
+        .style("fill", "#222");
 
     // Add an axis and title.
     _self.g.append("g")
         .attr("class", "axis")
         .style("fill", "#aaa")
         .each(function (d) {
-            d3.select(this).call(_self.axis.scale(_self.y[d])).style("fill", "#aaa").style("stroke", "none");
+            d3.select(this).call(_self.axis.scale(_self.y[d])).style("fill", "#222").style("stroke", "none");
         })
         .append("text")
         .style("text-anchor", "middle")
