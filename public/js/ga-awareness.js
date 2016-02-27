@@ -30,6 +30,8 @@ var device = "AWARENESS";
 
 var deviceId = randomString();
 
+var queryStacks = {};
+
 //crime dataset
 // Crime
 var crimeMeta = {};
@@ -107,7 +109,17 @@ $(document).ready(function () {
 
     options.callback = function (query, time, hostDevice, deviceId) {
         
-        createUserfromQueryList([query], deviceId);
+        if (deviceId in queryStacks) {
+        
+        } else {
+            
+            queryStacks[deviceId] = [];
+            
+        }
+        
+        queryStacks[deviceId].push(query);
+        
+        createUserfromQueryList(queryStacks[deviceId], deviceId);
         
     };
     

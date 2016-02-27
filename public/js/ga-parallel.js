@@ -53,11 +53,11 @@ ParallelCoord.prototype.createUser = function (data, user) {
 
     var _self = this;
     
-    d3.selectAll(".path" + user).remove();
+    _self.svg.selectAll(".foreground"+user).remove();
 
     // Add blue foreground lines for focus.
     _self.foreground[user] = _self.svg.append("g")
-        .attr("class", "foreground")
+        .attr("class", "foreground"+user)
         .selectAll(".path" + user)
         .data(data)
         .enter().append("path")
@@ -117,16 +117,16 @@ ParallelCoord.prototype.createViz = function () {
     }));
 
     // Add grey background lines for context.
-    _self.background = _self.svg.append("g")
-        .attr("class", "background")
-        .selectAll("path")
-        .data(_self.data)
-        .enter().append("path")
-        .attr("d", _self.path)
-        .style("fill", "none")
-        .style("stroke", "#ddd")
-        .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.05);
+//    _self.background = _self.svg.append("g")
+//        .attr("class", "background")
+//        .selectAll("path")
+//        .data(_self.data)
+//        .enter().append("path")
+//        .attr("d", _self.path)
+//        .style("fill", "none")
+//        .style("stroke", "#ddd")
+//        .style("stroke-width", "1px")
+//        .style("stroke-opacity", 0.05);
 
     // Add a group element for each dimension.
     var g = _self.g = _self.svg.selectAll(".dimension")

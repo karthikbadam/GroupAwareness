@@ -78,8 +78,12 @@ var deviceId = randomString();
 
 function setGlobalQuery(query, propagate) {
 
+    if (queryStack.length == 0) {
+        query.logic = "CLEAN";   
+    }
+    
     var currQuery = query;
-
+    
     var prevQuery = queryStack[queryStack.length - 1];
 
     queryStack.push(query.getQueryString());

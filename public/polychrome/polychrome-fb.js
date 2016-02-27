@@ -14,8 +14,8 @@ function Sync(options) {
             if (+data.time > startTime &&
                 deviceId != data.deviceId) {
 
-                options.callback(data.query, 
-                                 data.time, data.deviceType, data.deviceId);
+                options.callback(data.query,
+                    data.time, data.deviceType, data.deviceId);
 
             }
 
@@ -33,7 +33,7 @@ Sync.prototype.push = function (query) {
     data.time = Date.now();
 
     data.deviceType = device;
-    
+
     data.deviceId = deviceId;
 
     _self.queryRef.push(data);
