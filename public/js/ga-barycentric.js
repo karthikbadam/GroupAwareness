@@ -267,8 +267,9 @@ BaryMap.prototype.createUser = function (data, user) {
     //    });
 
 
-
-    var hull = _self.hull = _self.container.append("path").attr("class", "hull");
+     _self.container.selectAll(".hull"+user).remove();
+    
+    var hull = _self.hull = _self.container.append("path").attr("class", "hull"+user);
 
     _self.hull.datum(customHull(_self.tempData)).attr("d", function (d) {
         console.log(d);

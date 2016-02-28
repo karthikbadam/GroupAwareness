@@ -61,7 +61,7 @@ var colorscale = d3.scale.category10();
 
 // awareness visualization
 var awarenessViz;
-var awarenessType = 2; 
+var awarenessType = 1; 
 // 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
 
 // user interactions
@@ -195,7 +195,7 @@ function getDataFromQuery(queryList) {
         awarenessViz.createViz();
         
 //        interactions.forEach(function (d, i) {
-//            createUserfromQueryList(d.query, i+1);
+//            createUserfromQueryList(d.query, 1);
 //        });
         
 
