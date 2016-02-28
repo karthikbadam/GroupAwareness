@@ -42,12 +42,28 @@ function ParallelCoord(options) {
 }
 
 
-ParallelCoord.prototype.transform = function (data) {
-
-    var _self = this;
-
-    return data;
+ParallelCoord.prototype.clusterAxis = function (data) {
+ 
+    var _self = this; 
+    
+    _self.aggregatedData = {};
+    
+    _self.cols.forEach(function (d) {
+       
+        //get data domain
+        
+        for (var i = 0 ; i < _self.data.length; i++) {
+         
+            var datumValue = _self.data[i]["_id"][d]; 
+            
+            
+        }
+        
+    });
+    
+    
 }
+
 
 ParallelCoord.prototype.createUser = function (data, user) {
 
