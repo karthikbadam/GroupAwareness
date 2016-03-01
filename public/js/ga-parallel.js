@@ -81,7 +81,7 @@ ParallelCoord.prototype.createUser = function (data, user) {
         .attr("d", _self.path)
         .style("fill", "none")
         .style("stroke", colorscale(user))
-        .style("stroke-width", "1px")
+        .style("stroke-width", "3px")
         .style("stroke-opacity", 1 / Math.pow(data.length + 1, 0.5));
 
 }
