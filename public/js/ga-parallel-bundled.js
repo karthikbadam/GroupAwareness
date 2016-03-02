@@ -99,7 +99,8 @@ ParallelCoord.prototype.createViz = function () {
     });
 
     pc = d3.parcoords()("#content")
-        .alpha(0.05)
+        .alpha(0.03)
+        .mode("queue")
         .data(_self.defaultdata)
         .bundlingStrength(1) // set bundling strength
         .smoothness(0.2)

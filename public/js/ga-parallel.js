@@ -81,7 +81,7 @@ ParallelCoord.prototype.createUser = function (data, user) {
         .attr("d", _self.path)
         .style("fill", "none")
         .style("stroke", colorscale(user))
-        .style("stroke-width", "3px")
+        .style("stroke-width", "1px")
         .style("stroke-opacity", 1 / Math.pow(data.length + 1, 0.5));
 
 }
@@ -133,16 +133,16 @@ ParallelCoord.prototype.createViz = function () {
     }));
 
     // Add grey background lines for context.
-//    _self.background = _self.svg.append("g")
-//        .attr("class", "background")
-//        .selectAll("path")
-//        .data(_self.data)
-//        .enter().append("path")
-//        .attr("d", _self.path)
-//        .style("fill", "none")
-//        .style("stroke", "#ddd")
-//        .style("stroke-width", "1px")
-//        .style("stroke-opacity", 0.05);
+    _self.background = _self.svg.append("g")
+        .attr("class", "background")
+        .selectAll("path")
+        .data(_self.data)
+        .enter().append("path")
+        .attr("d", _self.path)
+        .style("fill", "none")
+        .style("stroke", "#ddd")
+        .style("stroke-width", "1px")
+        .style("stroke-opacity", 0.05);
 
     // Add a group element for each dimension.
     var g = _self.g = _self.svg.selectAll(".dimension")

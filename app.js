@@ -10,6 +10,8 @@ var d3 = require('d3');
 var url = require('url');
 var qs = require('qs');
 
+var clustering = require('./hierarchical.js')
+
 // connecting to Mongodb database running instance
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
@@ -389,6 +391,28 @@ app.get('/getCrime', function (req, res, next) {
 
 });
 
+app.get('/getCrimeClustered', function (req, res, next) {
+
+    var params = url.parse(req.url, true).query;
+
+    var query = parseQueryString(params);
+
+    MongoClient.connect(mongourlCrime, function (err, db) {
+        assert.equal(null, err);
+
+        queryCrime(db, query,
+            function (data) {
+                db.close();
+            
+                //aggregate data
+                
+                
+                res.write(JSON.stringify(data));
+                res.end();
+            });
+    });
+
+});
 
 // parse query string
 function parseQueryString(params) {
