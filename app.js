@@ -391,6 +391,22 @@ app.get('/getCrime', function (req, res, next) {
 
 });
 
+// Euclidean distance 
+var distance = function (a, b) {
+    var d = 0;
+    for (var i = 0; i < a.length; i++) {
+        d += Math.pow(a[i] - b[i], 2);
+    }
+    return Math.sqrt(d);
+
+}
+
+// Single-linkage clustering -- maybe change this to centroid
+function linkage(distances) {
+    return Math.min.apply(null, distances);
+}
+
+
 app.get('/getCrimeClustered', function (req, res, next) {
 
     var params = url.parse(req.url, true).query;
@@ -403,11 +419,21 @@ app.get('/getCrimeClustered', function (req, res, next) {
         queryCrime(db, query,
             function (data) {
                 db.close();
-            
+
                 //aggregate data
-                
-                
-                res.write(JSON.stringify(data));
+
+                var levels = clustering({
+                    input: data,
+                    distance: distance,
+                    linkage: linkage,
+                    minClusters: 6, // only want two clusters 
+                });
+
+                var clusters = levels[levels.length - 1].clusters;
+
+                console.log(clusters);
+            
+                res.write(JSON.stringify(clusters));
                 res.end();
             });
     });
