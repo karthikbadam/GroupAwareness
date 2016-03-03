@@ -142,7 +142,6 @@ function getDataFromQuery(queryList) {
         clusteredData = JSON.parse(tempData);
 
         data = clusteredData["data"];
-        sample = clusteredData["sample"];
         clusters = clusteredData["clusters"];
         
         console.log(data);
@@ -197,7 +196,7 @@ function getDataFromQuery(queryList) {
         }
 
 
-        awarenessViz.createViz();
+        awarenessViz.createViz(clusters);
         
 //        interactions.forEach(function (d, i) {
 //            createUserfromQueryList(d.query, 1);

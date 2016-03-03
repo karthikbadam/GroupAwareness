@@ -16,7 +16,7 @@ function ParallelCoord(options) {
     _self.width = width - _self.margin.left - _self.margin.right;
 
     _self.height = height - _self.margin.top - _self.margin.bottom;
-    
+
     _self.isNumeric = {};
 
     for (var i = 0; i < _self.data.length; i++) {
@@ -43,37 +43,37 @@ function ParallelCoord(options) {
 
 
 ParallelCoord.prototype.clusterAxis = function (data) {
- 
-    var _self = this; 
-    
+
+    var _self = this;
+
     _self.aggregatedData = {};
-    
+
     _self.cols.forEach(function (d) {
-       
+
         //get data domain
-        
-        for (var i = 0 ; i < _self.data.length; i++) {
-         
-            var datumValue = _self.data[i]["_id"][d]; 
-            
-            
+
+        for (var i = 0; i < _self.data.length; i++) {
+
+            var datumValue = _self.data[i]["_id"][d];
+
+
         }
-        
+
     });
-    
-    
+
+
 }
 
 
 ParallelCoord.prototype.createUser = function (data, user) {
 
     var _self = this;
-    
-    _self.svg.selectAll(".foreground"+user).remove();
+
+    _self.svg.selectAll(".foreground" + user).remove();
 
     // Add blue foreground lines for focus.
     _self.foreground[user] = _self.svg.append("g")
-        .attr("class", "foreground"+user)
+        .attr("class", "foreground" + user)
         .selectAll(".path" + user)
         .data(data)
         .enter().append("path")
@@ -86,11 +86,15 @@ ParallelCoord.prototype.createUser = function (data, user) {
 
 }
 
-ParallelCoord.prototype.createViz = function () {
+ParallelCoord.prototype.createViz = function (clusters) {
 
     var _self = this;
 
-    var x = _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
+    _self.defaultClusters = clusters;
+
+    var x = _self.x = d3.scale.ordinal()
+        .rangePoints([0, _self.width], 1);
+
     var y = _self.y = {};
 
     var line = _self.line = d3.svg.line();
@@ -115,13 +119,13 @@ ParallelCoord.prototype.createViz = function () {
     _self.x.domain(_self.cols.filter(function (d) {
 
         if (_self.isNumeric[d]) {
-            
+
             return (_self.y[d] = d3.scale.linear()
                 .domain(d3.extent(_self.data, function (p) {
                     return p["_id"][d];
                 }))
                 .range([_self.height, 0]));
-            
+
         } else {
 
             return (_self.y[d] = d3.scale.ordinal()
@@ -132,17 +136,70 @@ ParallelCoord.prototype.createViz = function () {
         }
     }));
 
+
+    // drawing area
+    var area = _self.area = d3.svg.area()
+        .interpolate("cardinal")
+        .x(function (d) {
+            return _self.x(d["key"]);
+        })
+        .y0(function (d) {
+            return _self.y[d["key"]](d["min"]);
+        })
+        .y1(function (d) {
+            return _self.y[d["key"]](d["max"]);
+        });
+
+    var newClusters = [];
+
+    clusters.forEach(function (cluster) {
+
+        var newCluster = [];
+
+        var min = cluster.min;
+        var max = cluster.max;
+
+        var keys = _self.cols;
+
+        keys.forEach(function (key) {
+
+            var temp = {};
+            temp["key"] = key;
+            temp["min"] = min[key];
+            temp["max"] = max[key];
+
+            newCluster.push(temp);
+        });
+
+        newClusters.push(newCluster);
+
+    });
+
+    console.log(newClusters);
+
     // Add grey background lines for context.
+
     _self.background = _self.svg.append("g")
         .attr("class", "background")
         .selectAll("path")
-        .data(_self.data)
+        .data(newClusters)
         .enter().append("path")
-        .attr("d", _self.path)
-        .style("fill", "none")
-        .style("stroke", "#ddd")
-        .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.05);
+        .attr("d", function (d) {
+            return _self.area(d);
+        })
+        .style("fill", "#AAA")
+        .style("fill-opacity", 0.1);
+
+    //    _self.background = _self.svg.append("g")
+    //            .attr("class", "background")
+    //            .selectAll("path")
+    //            .data(_self.data)
+    //            .enter().append("path")
+    //            .attr("d", _self.path)
+    //        .style("fill", "none")
+    //        .style("stroke", "#ddd")
+    //        .style("stroke-width", "1px")
+    //        .style("stroke-opacity", 0.05);
 
     // Add a group element for each dimension.
     var g = _self.g = _self.svg.selectAll(".dimension")

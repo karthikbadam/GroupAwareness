@@ -531,7 +531,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
                 // random sampling for now
                 // 100 points at most
                 var sampled = [];
-                var fraction = 200 / data.length;
+                var fraction = 300 / data.length;
 
                 for (var i = 0; i < data.length; i++) {
 
