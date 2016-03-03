@@ -576,12 +576,10 @@ app.get('/getCrimeClustered', function (req, res, next) {
                     input: sampled,
                     distance: distance,
                     linkage: linkage,
-                    minClusters: 6, // only want two clusters 
+                    minClusters: 4, // only want two clusters 
                 });
 
                 var clusters = levels[levels.length - 1].clusters;
-
-                console.log(clusters);
 
                 var returnData = {};
                 returnData["data"] = tempData;
@@ -595,7 +593,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
                     var a = [];
 
                     var aMin = sampled[cMeta[0]];
-                    var aMax = sampled[cMeta[cMeta.length-1]];
+                    var aMax = sampled[cMeta[cMeta.length - 1]];
 
                     var cols = Object.keys(aMin);
 
@@ -607,14 +605,10 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                             if (isNumeric[key]) {
 
-                                console.log(s[key] + "; " + aMin[key]
-                                            + "; " + aMax[key]);
 
                                 if (parseFloat(s[key]) <
                                     parseFloat(aMin[key])) {
-                                    
-                                    console.log("min");
-                                    
+
                                     aMin[key] = s[key];
 
                                 }
@@ -622,8 +616,6 @@ app.get('/getCrimeClustered', function (req, res, next) {
                                 if (parseFloat(s[key]) >
                                     parseFloat(aMax[key])) {
 
-                                    console.log("max");
-                                    
                                     aMax[key] = s[key];
 
                                 }
@@ -631,17 +623,12 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                             } else {
 
-                                console.log(s[key] + "; " + aMin[key]
-                                            + "; " + aMax[key]);
 
                                 var sloc = reverse[key][s[key]];
                                 var minloc = reverse[key][aMin[key]];
                                 var maxloc = reverse[key][aMax[key]];
 
                                 if (sloc < minloc) {
-                                    
-                                    
-                                    console.log("min");
 
                                     aMin[key] = s[key];
 
@@ -649,9 +636,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                                 if (sloc > maxloc) {
 
-                                    
-                                    console.log("max");
-                                    
+
                                     aMax[key] = s[key];
 
                                 }

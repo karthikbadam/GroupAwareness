@@ -65,24 +65,64 @@ ParallelCoord.prototype.clusterAxis = function (data) {
 }
 
 
-ParallelCoord.prototype.createUser = function (data, user) {
+ParallelCoord.prototype.createUser = function (data, user, clusters) {
 
     var _self = this;
 
     _self.svg.selectAll(".foreground" + user).remove();
+    
+    var newClusters = [];
+
+    clusters.forEach(function (cluster) {
+
+        var newCluster = [];
+
+        var min = cluster.min;
+        var max = cluster.max;
+
+        var keys = _self.cols;
+
+        keys.forEach(function (key) {
+
+            var temp = {};
+            temp["key"] = key;
+            temp["min"] = min[key];
+            temp["max"] = max[key];
+
+            newCluster.push(temp);
+        });
+
+        newClusters.push(newCluster);
+
+    });
+
+    console.log(newClusters);
+
+    // Add grey background lines for context.
+
+    _self.background = _self.svg.append("g")
+        .attr("class", "foreground" + user)
+        .selectAll("path")
+        .data(newClusters)
+        .enter().append("path")
+        .attr("d", function (d) {
+            return _self.area(d);
+        })
+        .style("fill", colorscale(user))
+        .style("fill-opacity", 0.2);
 
     // Add blue foreground lines for focus.
-    _self.foreground[user] = _self.svg.append("g")
-        .attr("class", "foreground" + user)
-        .selectAll(".path" + user)
-        .data(data)
-        .enter().append("path")
-        .attr("style", "path" + user)
-        .attr("d", _self.path)
-        .style("fill", "none")
-        .style("stroke", colorscale(user))
-        .style("stroke-width", "1px")
-        .style("stroke-opacity", 1 / Math.pow(data.length + 1, 0.5));
+//    _self.foreground[user] = _self.svg.append("g")
+//        .attr("class", "foreground" + user)
+//        .selectAll(".path" + user)
+//        .data(data)
+//        .enter().append("path")
+//        .attr("style", "path" + user)
+//        .attr("d", _self.path)
+//        .style("fill", "none")
+//        .style("stroke", colorscale(user))
+//        .style("stroke-width", "1px")
+//        .style("stroke-opacity", 1 / Math.pow(data.length + 1, 0.5));
 
 }
 
@@ -188,7 +228,7 @@ ParallelCoord.prototype.createViz = function (clusters) {
             return _self.area(d);
         })
         .style("fill", "#AAA")
-        .style("fill-opacity", 0.1);
+        .style("fill-opacity", 0.04);
 
     //    _self.background = _self.svg.append("g")
     //            .attr("class", "background")

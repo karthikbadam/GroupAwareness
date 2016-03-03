@@ -212,18 +212,22 @@ function createUserfromQueryList(queryList, user) {
     $.ajax({
 
         type: "GET",
-        url: "/getCrime",
+        url: "/getCrimeClustered",
         data: {
             data: queryList
         }
 
-    }).done(function (data) {
+    }).done(function (tempData) {
 
-        data = JSON.parse(data);
+        clusteredData = JSON.parse(tempData);
 
+        data = clusteredData["data"];
+        clusters = clusteredData["clusters"];
+        
         console.log(data);
+        console.log(clusters);
 
-        awarenessViz.createUser(data, user);
+        awarenessViz.createUser(data, user, clusters);
 
     });
 
