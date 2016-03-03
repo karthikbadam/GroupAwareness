@@ -499,10 +499,68 @@ var distance = function (a, b) {
 
 }
 
+function centroid(a, input) {
+
+    var centroid = {};
+
+    for (var i = 0; i < a.length; i++) {
+
+        var datum = input[a[i]];
+
+        var keys = Object.keys(datum);
+
+        keys.forEach(function (key) {
+            
+            if (i == 0) {
+             
+                centroid[key] = 0;
+                
+            }
+            
+
+            if (isNumeric[key]) {
+
+                centroid[key] += parseFloat(datum[key]);
+
+            } else {
+
+                centroid[key] += reverse[key][datum[key]];
+
+            }
+
+
+        });
+
+
+    }
+
+    var keys = Object.keys(centroid);
+
+    keys.forEach(function (key) {
+
+        if (isNumeric[key]) {
+
+            centroid[key] = centroid[key] / a.length;
+
+        } else {
+
+            centroid[key] = domain[key][Math.round(centroid[key] /
+                                                   a.length)];
+
+        }
+
+
+    });
+
+
+    return centroid;
+
+}
+
 // Single-linkage clustering -- maybe change this to centroid
 var linkage = function (distances) {
 
-    return Math.min.apply(null, distances);
+    return Math.max.apply(null, distances);
 
 }
 
@@ -531,7 +589,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
                 // random sampling for now
                 // 100 points at most
                 var sampled = [];
-                var fraction = 300 / data.length;
+                var fraction = 100 / data.length;
 
                 for (var i = 0; i < data.length; i++) {
 
@@ -575,8 +633,9 @@ app.get('/getCrimeClustered', function (req, res, next) {
                 var levels = clustering({
                     input: sampled,
                     distance: distance,
-                    linkage: linkage,
-                    minClusters: 4, // only want two clusters 
+                    linkage: "average",
+                    centroid: centroid,
+                    minClusters: 6, // only want two clusters 
                 });
 
                 var clusters = levels[levels.length - 1].clusters;

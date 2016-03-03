@@ -228,7 +228,7 @@ ParallelCoord.prototype.createViz = function (clusters) {
             return _self.area(d);
         })
         .style("fill", "#AAA")
-        .style("fill-opacity", 0.04);
+        .style("fill-opacity", 0.05);
 
     //    _self.background = _self.svg.append("g")
     //            .attr("class", "background")
