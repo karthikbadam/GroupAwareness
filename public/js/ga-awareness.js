@@ -132,16 +132,21 @@ function getDataFromQuery(queryList) {
     $.ajax({
 
         type: "GET",
-        url: "/getCrime",
+        url: "/getCrimeClustered",
         data: {
             data: queryList
         }
 
-    }).done(function (data) {
+    }).done(function (tempData) {
 
-        data = JSON.parse(data);
+        clusteredData = JSON.parse(tempData);
 
+        data = clusteredData["data"];
+        sample = clusteredData["sample"];
+        clusters = clusteredData["clusters"];
+        
         console.log(data);
+        console.log(clusters);
 
         switch (awarenessType) {
         case 1:

@@ -137,6 +137,7 @@ function checkCrime(db, callback) {
     });
 }
 
+
 function initializeCrime(db, callback) {
 
     var END = false;
@@ -391,21 +392,119 @@ app.get('/getCrime', function (req, res, next) {
 
 });
 
+function checkNumeric(n) {
+
+    return !isNaN(parseFloat(n)) && isFinite(n);
+
+}
+
+var findDataTypes = function (data) {
+
+    var isNumeric = {};
+
+    var cols = Object.keys(data[0]);
+
+    for (var i = 0; i < data.length; i++) {
+
+        for (var j = 0; j < cols.length; j++) {
+
+            var key = cols[j];
+
+            var value = data[i][key];
+
+            if (value == "" || value == "NaN" || value == "undefined") {
+
+                continue;
+
+            } else {
+
+                isNumeric[key] = checkNumeric(value);
+            }
+        }
+    }
+
+    return isNumeric;
+
+}
+
+Array.prototype.unique = function () {
+    var n = [];
+    for (var i = 0; i < this.length; i++) {
+        if (n.indexOf(this[i]) == -1) n.push(this[i]);
+    }
+    return n;
+}
+
+// data domains
+var domain = {};
+var isNumeric = {};
+var reverse = {};
+
 // Euclidean distance 
 var distance = function (a, b) {
     var d = 0;
-    for (var i = 0; i < a.length; i++) {
-        d += Math.pow(a[i] - b[i], 2);
+    //var cols = Object.keys(a);
+    cols = ["District", "Description", "Weapon", "Post"];
+
+    for (var i = 0; i < cols.length; i++) {
+
+        var key = cols[i];
+
+        if (key == "id") {
+            continue;
+        }
+
+        if (a[key] != "NaN" || b[key] != "NaN") {
+
+            if (isNumeric[key]) {
+
+                var extent = domain[key][1] - domain[key][0];
+
+                var val = Math.pow((parseFloat(a[key]) -
+                    parseFloat(b[key])) / extent, 2);
+
+                if (checkNumeric(val)) {
+
+                    d += val;
+
+                }
+
+
+            } else {
+
+                var aloc = reverse[key][a[key]];
+                var bloc = reverse[key][b[key]];
+
+                var val = Math.pow((aloc - bloc) /
+                    domain[key].length, 2);
+
+                if (checkNumeric(val)) {
+
+                    d += val;
+                }
+            }
+
+        }
+
     }
+
+
+    if (checkNumeric(d) == false) {
+
+        console.log(a);
+        console.log(b);
+    }
+
     return Math.sqrt(d);
 
 }
 
 // Single-linkage clustering -- maybe change this to centroid
-function linkage(distances) {
-    return Math.min.apply(null, distances);
-}
+var linkage = function (distances) {
 
+    return Math.min.apply(null, distances);
+
+}
 
 app.get('/getCrimeClustered', function (req, res, next) {
 
@@ -417,13 +516,64 @@ app.get('/getCrimeClustered', function (req, res, next) {
         assert.equal(null, err);
 
         queryCrime(db, query,
-            function (data) {
+            function (tempData) {
+
                 db.close();
 
-                //aggregate data
+                var data = new Array(tempData.length);
 
+                tempData.forEach(function (d, i) {
+                    data[i] = tempData[i]["_id"];
+                });
+
+
+                // data sampling because clustering is slow
+                // random sampling for now
+                // 100 points at most
+                var sampled = [];
+                var fraction = 200 / data.length;
+
+                for (var i = 0; i < data.length; i++) {
+
+                    if (Math.random() < fraction) {
+
+                        sampled.push(data[i]);
+
+                    }
+                }
+
+                //get data keys 
+                var cols = Object.keys(data[0]);
+
+                isNumeric = findDataTypes(data);
+
+                console.log(isNumeric);
+
+                cols.forEach(function (d) {
+
+                    if (isNumeric[d]) {
+
+                        domain[d] = d3.extent(data, function (p) {
+                            return parseFloat(p[d]);
+                        });
+
+                    } else {
+
+                        domain[d] = data.map(function (p) {
+                            return p[d];
+                        }).sort().unique();
+
+                        reverse[d] = {};
+
+                        domain[d].forEach(function (v, i) {
+                            reverse[d][v] = i;
+                        });
+                    }
+                });
+
+                //aggregate data
                 var levels = clustering({
-                    input: data,
+                    input: sampled,
                     distance: distance,
                     linkage: linkage,
                     minClusters: 6, // only want two clusters 
@@ -432,8 +582,99 @@ app.get('/getCrimeClustered', function (req, res, next) {
                 var clusters = levels[levels.length - 1].clusters;
 
                 console.log(clusters);
-            
-                res.write(JSON.stringify(clusters));
+
+                var returnData = {};
+                returnData["data"] = tempData;
+
+                var actualClusters = [];
+
+                clusters.forEach(function (cMeta) {
+
+                    var c = {}
+
+                    var a = [];
+
+                    var aMin = sampled[cMeta[0]];
+                    var aMax = sampled[cMeta[cMeta.length-1]];
+
+                    var cols = Object.keys(aMin);
+
+                    for (var i = 0; i < cMeta.length; i++) {
+
+                        var s = sampled[cMeta[i]];
+
+                        cols.forEach(function (key) {
+
+                            if (isNumeric[key]) {
+
+                                console.log(s[key] + "; " + aMin[key]
+                                            + "; " + aMax[key]);
+
+                                if (parseFloat(s[key]) <
+                                    parseFloat(aMin[key])) {
+                                    
+                                    console.log("min");
+                                    
+                                    aMin[key] = s[key];
+
+                                }
+
+                                if (parseFloat(s[key]) >
+                                    parseFloat(aMax[key])) {
+
+                                    console.log("max");
+                                    
+                                    aMax[key] = s[key];
+
+                                }
+
+
+                            } else {
+
+                                console.log(s[key] + "; " + aMin[key]
+                                            + "; " + aMax[key]);
+
+                                var sloc = reverse[key][s[key]];
+                                var minloc = reverse[key][aMin[key]];
+                                var maxloc = reverse[key][aMax[key]];
+
+                                if (sloc < minloc) {
+                                    
+                                    
+                                    console.log("min");
+
+                                    aMin[key] = s[key];
+
+                                }
+
+                                if (sloc > maxloc) {
+
+                                    
+                                    console.log("max");
+                                    
+                                    aMax[key] = s[key];
+
+                                }
+                            }
+
+                        });
+
+                        a.push(s);
+
+                    }
+
+                    c["data"] = a;
+                    c["min"] = aMin;
+                    c["max"] = aMax;
+
+                    actualClusters.push(c);
+
+                });
+
+                returnData["clusters"] = actualClusters;
+
+                res.write(JSON.stringify(returnData));
+
                 res.end();
             });
     });

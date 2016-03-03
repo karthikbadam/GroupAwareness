@@ -127,7 +127,7 @@ ParallelCoord.prototype.createViz = function () {
             return (_self.y[d] = d3.scale.ordinal()
                 .domain(_self.data.map(function (p) {
                     return p["_id"][d];
-                }))
+                }).sort())
                 .rangePoints([_self.height, 0]));
         }
     }));
