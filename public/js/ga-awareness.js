@@ -61,7 +61,7 @@ var colorscale = d3.scale.category10();
 
 // awareness visualization
 var awarenessViz;
-var awarenessType = 2; 
+var awarenessType = 2;
 // 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
 
 // user interactions
@@ -104,25 +104,25 @@ $(document).ready(function () {
     };
 
     getDataFromQuery("empty");
-    
+
     var options = {};
 
     options.callback = function (query, time, hostDevice, deviceId) {
-        
+
         if (deviceId in queryStacks) {
-        
+
         } else {
-            
+
             queryStacks[deviceId] = [];
-            
+
         }
-        
+
         queryStacks[deviceId].push(query);
-        
+
         createUserfromQueryList(queryStacks[deviceId], deviceId);
-        
+
     };
-    
+
     polychrome = new Sync(options);
 
 });
@@ -143,7 +143,7 @@ function getDataFromQuery(queryList) {
 
         data = clusteredData["data"];
         clusters = clusteredData["clusters"];
-        
+
         console.log(data);
         console.log(clusters);
 
@@ -195,12 +195,14 @@ function getDataFromQuery(queryList) {
 
         }
 
-
         awarenessViz.createViz(clusters);
+
         
-//        interactions.forEach(function (d, i) {
-//            createUserfromQueryList(d.query, 1);
-//        });
+        //        interactions.forEach(function (d, i) {
+        //            createUserfromQueryList(d.query, 1);
+        //        });
+
+        
         
 
     });
@@ -223,7 +225,7 @@ function createUserfromQueryList(queryList, user) {
 
         data = clusteredData["data"];
         clusters = clusteredData["clusters"];
-        
+
         console.log(data);
         console.log(clusters);
 

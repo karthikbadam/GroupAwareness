@@ -79,11 +79,11 @@ var deviceId = randomString();
 function setGlobalQuery(query, propagate) {
 
     if (queryStack.length == 0) {
-        query.logic = "CLEAN";   
+        query.logic = "CLEAN";
     }
-    
+
     var currQuery = query;
-    
+
     var prevQuery = queryStack[queryStack.length - 1];
 
     queryStack.push(query.getQueryString());
@@ -100,7 +100,7 @@ function setGlobalQuery(query, propagate) {
     }
 
     //touchSync.push(currQuery);
-    
+
     d3.selectAll(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
@@ -109,8 +109,8 @@ function setGlobalQuery(query, propagate) {
     if (propagate) {
         getDatafromQuery(queryStack);
     }
-    
-     //syncing between devices
+
+    //syncing between devices
     var dquery = "empty";
 
     if (JSON.stringify(query.getQueryString()) !=
@@ -129,7 +129,7 @@ function clearRecentQuery() {
         getDatafromQuery("empty");
         return;
     }
-    
+
     queryStack.pop();
     historyQueryStack.pop();
     getDatafromQuery(queryStack);
@@ -143,10 +143,10 @@ function clearRecentQuery() {
     // update all other visualizations
 }
 
-$(document).keypress("u",function(e) {
+$(document).keypress("u", function (e) {
 
     clearRecentQuery();
-    
+
 });
 
 $(document).ready(function () {
@@ -154,7 +154,15 @@ $(document).ready(function () {
     //creating the layout
     width = $("#content").width();
     height = $("#content").height();
-    
+
+    $(".btnminimize").click(function () {
+
+        $(this).toggleClass('btn-plus');
+
+        $(".awareness").slideToggle();
+
+    });
+
     visuals.forEach(function (d, i) {
         visualizations[i] = null;
     });
@@ -192,7 +200,7 @@ $(document).ready(function () {
     };
 
     getDatafromQuery("empty");
-    
+
     var options = {};
 
     options.callback = function (query, time, hostDevice) {
@@ -363,14 +371,14 @@ function processData(data, col1, col2) {
 
 
     returnData.sort(function (a, b) {
-            if (a["value"] <
-                b["value"]) return 1;
-            return -1;
-        });
-    
+        if (a["value"] <
+            b["value"]) return 1;
+        return -1;
+    });
+
     console.log(returnData);
-    
-    
+
+
     return returnData;
 }
 

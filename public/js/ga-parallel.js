@@ -8,9 +8,9 @@ function ParallelCoord(options) {
 
     _self.margin = {
         top: 30,
-        right: 10,
+        right: 5,
         bottom: 10,
-        left: 10
+        left: 40
     };
 
     _self.width = width - _self.margin.left - _self.margin.right;
@@ -109,7 +109,10 @@ ParallelCoord.prototype.createUser = function (data, user, clusters) {
             return _self.area(d);
         })
         .style("fill", colorscale(user))
-        .style("fill-opacity", 0.2);
+        .style("fill-opacity", 0.1)
+        .style("stroke", colorscale(user))
+        .style("stroke-width", "1px")
+        .style("stroke-opacity", 0.15);
 
     // Add blue foreground lines for focus.
 //    _self.foreground[user] = _self.svg.append("g")
