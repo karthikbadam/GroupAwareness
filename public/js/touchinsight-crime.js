@@ -147,6 +147,15 @@ $(document).keypress("u", function (e) {
 
     clearRecentQuery();
 
+    var query = new Query({
+        index: "",
+        value: "",
+        operator: "",
+        logic: "UNDO"
+    });
+
+    polychrome.push(query.getQueryString());
+
 });
 
 $(document).ready(function () {
@@ -188,16 +197,6 @@ $(document).ready(function () {
             gridster.add_widget('<div id = "viz' + i + '" ' + 'class="panel"><header></header></div>', 1, 1);
         }
     }
-
-    var query = {
-        index1: crimeMeta["date"],
-        operator1: "all",
-        value: "",
-        logic: "CLEAN",
-        index2: crimeMeta["description"],
-        operator2: "all",
-        value: "",
-    };
 
     getDatafromQuery("empty");
 

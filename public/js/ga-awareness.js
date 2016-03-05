@@ -116,8 +116,16 @@ $(document).ready(function () {
             queryStacks[deviceId] = [];
 
         }
+        
+        if (query.logic == "UNDO") {
 
-        queryStacks[deviceId].push(query);
+            queryStacks[deviceId].pop();
+            
+        } else {
+            
+            queryStacks[deviceId].push(query);
+            
+        }
 
         createUserfromQueryList(queryStacks[deviceId], deviceId);
 

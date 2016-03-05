@@ -70,7 +70,7 @@ ParallelCoord.prototype.createUser = function (data, user, clusters) {
     var _self = this;
 
     _self.svg.selectAll(".foreground" + user).remove();
-    
+
     var newClusters = [];
 
     clusters.forEach(function (cluster) {
@@ -98,9 +98,11 @@ ParallelCoord.prototype.createUser = function (data, user, clusters) {
 
     console.log(newClusters);
 
-    // Add grey background lines for context.
+    // Add colored foreground lines for context.
 
-    _self.background = _self.svg.append("g")
+    var opacityScale = d3.scale.linear().domain([0, _self.defaultData.length]).range([0, 1]);
+
+    _self.foreground = _self.svg.append("g")
         .attr("class", "foreground" + user)
         .selectAll("path")
         .data(newClusters)
@@ -109,23 +111,26 @@ ParallelCoord.prototype.createUser = function (data, user, clusters) {
             return _self.area(d);
         })
         .style("fill", colorscale(user))
-        .style("fill-opacity", 0.1)
+        .style("fill-opacity", function (d, i) {
+            return 0.1;
+            return clusters[i].length;
+        })
         .style("stroke", colorscale(user))
         .style("stroke-width", "1px")
-        .style("stroke-opacity", 0.15);
+        .style("stroke-opacity", 0.1);
 
     // Add blue foreground lines for focus.
-//    _self.foreground[user] = _self.svg.append("g")
-//        .attr("class", "foreground" + user)
-//        .selectAll(".path" + user)
-//        .data(data)
-//        .enter().append("path")
-//        .attr("style", "path" + user)
-//        .attr("d", _self.path)
-//        .style("fill", "none")
-//        .style("stroke", colorscale(user))
-//        .style("stroke-width", "1px")
-//        .style("stroke-opacity", 1 / Math.pow(data.length + 1, 0.5));
+    //    _self.foreground[user] = _self.svg.append("g")
+    //        .attr("class", "foreground" + user)
+    //        .selectAll(".path" + user)
+    //        .data(data)
+    //        .enter().append("path")
+    //        .attr("style", "path" + user)
+    //        .attr("d", _self.path)
+    //        .style("fill", "none")
+    //        .style("stroke", colorscale(user))
+    //        .style("stroke-width", "1px")
+    //        .style("stroke-opacity", 1 / Math.pow(data.length + 1, 0.5));
 
 }
 
@@ -134,6 +139,8 @@ ParallelCoord.prototype.createViz = function (clusters) {
     var _self = this;
 
     _self.defaultClusters = clusters;
+
+    _self.defaultData = data;
 
     var x = _self.x = d3.scale.ordinal()
         .rangePoints([0, _self.width], 1);
