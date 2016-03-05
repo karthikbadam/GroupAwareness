@@ -126,8 +126,9 @@ $(document).ready(function () {
             queryStacks[deviceId].push(query);
             
         }
-
-        createUserfromQueryList(queryStacks[deviceId], deviceId);
+        
+        if (queryStacks[deviceId].length > 0)
+            createUserfromQueryList(queryStacks[deviceId], deviceId);
 
     };
 
