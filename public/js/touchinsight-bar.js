@@ -27,6 +27,52 @@ function Bar(options) {
     _self.defaultData = null;
 }
 
+
+Bar.prototype.handler = function (value) {
+
+    var _self = this;
+
+    var query = new Query({
+        index: _self.cols[0],
+        value: value,
+        operator: "equal",
+        logic: "AND"
+    });
+
+    setGlobalQuery(query, 1);
+
+    var q = d3.select("#" + _self.parentId).select("header")
+        .append("div")
+        .attr("class", "userQuery")
+        .style("display", "inline-block")
+        .style("padding-left", "5px");
+
+    q.append("div")
+        .style("width", "auto")
+        .style("padding-left", "2px")
+        .style("padding-right", "2px")
+        .text("X")
+        .style("font-size", "12px")
+        .style("display", "inline-block")
+        .style("background-color", "#222")
+        .style("color", "#FFF")
+        .on("click", function () {
+
+            d3.select("#" + _self.parentId).select("header")
+                .select("." + "userQuery").remove();
+
+            clearQuery(query);
+        });
+
+    q.append("div")
+        .style("width", "auto")
+        .style("padding-right", "5px")
+        .text(value)
+        .style("font-size", "12px")
+        .style("display", "inline-block")
+        .style("background-color", "#AAA");
+}
+
 Bar.prototype.updateVisualization = function (data) {
 
     var _self = this;
@@ -101,14 +147,7 @@ Bar.prototype.updateVisualization = function (data) {
             .style("cursor", "pointer")
             .on("click", function () {
 
-                var query = new Query({
-                    index: _self.cols[0],
-                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
-                    operator: "equal",
-                    logic: "AND"
-                });
-
-                setGlobalQuery(query, 1);
+                _self.handler(d3.select(this)[0][0].__data__[_self.cols[0]]);
 
             });
 
@@ -147,14 +186,7 @@ Bar.prototype.updateVisualization = function (data) {
             })
             .on("click", function () {
 
-                var query = new Query({
-                    index: _self.cols[0],
-                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
-                    operator: "equal",
-                    logic: "AND"
-                });
-
-                setGlobalQuery(query, 1);
+                _self.handler(d3.select(this)[0][0].__data__[_self.cols[0]]);
 
             });
 
@@ -193,14 +225,7 @@ Bar.prototype.updateVisualization = function (data) {
             .style("cursor", "pointer")
             .on("click", function () {
 
-                var query = new Query({
-                    index: _self.cols[0],
-                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
-                    operator: "equal",
-                    logic: "AND"
-                });
-
-                setGlobalQuery(query, 1);
+                _self.handler(d3.select(this)[0][0].__data__[_self.cols[0]]);
 
             });
 
@@ -225,14 +250,7 @@ Bar.prototype.updateVisualization = function (data) {
             .style("cursor", "pointer")
             .on("click", function () {
 
-                var query = new Query({
-                    index: _self.cols[0],
-                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
-                    operator: "equal",
-                    logic: "AND"
-                });
-
-                setGlobalQuery(query, 1);
+                _self.handler(d3.select(this)[0][0].__data__[_self.cols[0]]);
 
             });
 
@@ -270,14 +288,7 @@ Bar.prototype.updateVisualization = function (data) {
             })
             .on("click", function () {
 
-                var query = new Query({
-                    index: _self.cols[0],
-                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
-                    operator: "equal",
-                    logic: "OR"
-                });
-
-                setGlobalQuery(query, 1);
+                _self.handler(d3.select(this)[0][0].__data__[_self.cols[0]]);
 
             });
 
@@ -298,14 +309,7 @@ Bar.prototype.updateVisualization = function (data) {
             })
             .on("click", function () {
 
-                var query = new Query({
-                    index: _self.cols[0],
-                    value: d3.select(this)[0][0].__data__[_self.cols[0]],
-                    operator: "equal",
-                    logic: "OR"
-                });
-
-                setGlobalQuery(query, 1);
+                _self.handler(d3.select(this)[0][0].__data__[_self.cols[0]]);
 
             });
 

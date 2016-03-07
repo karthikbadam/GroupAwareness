@@ -143,6 +143,57 @@ function clearRecentQuery() {
     // update all other visualizations
 }
 
+function clearQuery(query) {
+
+    if (queryStack.length == 0)
+        return;
+
+    var index = -1;
+
+    for (var i = 0; i < queryStack.length; i++) {
+
+        var q = queryStack[i];
+
+        if (q.index == query.index && q.operator == query.operator &&
+            JSON.stringify(q.value) == JSON.stringify(query.value)) {
+
+            index = i;
+
+        }
+
+    }
+
+    if (index >= 0) {
+
+        queryStack.splice(index, 1);
+
+        if (index <= queryStack.length - 1) {
+
+            var nextQuery = queryStack[index];
+
+            if (nextQuery.logic != "CLEAN") {
+
+                nextQuery.logic = "CLEAN";
+
+                queryStack[index] = nextQuery;
+            }
+
+        }
+
+    }
+
+    query.logic = "UNDO";
+
+    //historyQueryStack.pop();
+    if (queryStack.length > 0) {
+        getDatafromQuery(queryStack);
+    } else {
+        getDatafromQuery("empty");
+    }
+
+    polychrome.push(query.getQueryString());
+}
+
 $(document).keypress("u", function (e) {
 
     clearRecentQuery();
