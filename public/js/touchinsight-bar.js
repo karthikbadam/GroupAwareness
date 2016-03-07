@@ -44,9 +44,13 @@ Bar.prototype.updateVisualization = function (data) {
         _self.height = 10000;
 
         d3.select("#" + _self.parentId).select("header")
+            .style("display", "block")
+            .append("div")
+            .style("width", "auto")
             .style("padding-left", "5px")
             .text(_self.text)
-            .style("font-size", "14px");
+            .style("font-size", "12px")
+            .style("display", "inline-block");
 
         _self.svg = d3.select("#" + _self.parentId).append("div")
             .style("overflow", "scroll")

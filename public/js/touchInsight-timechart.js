@@ -37,11 +37,14 @@ TimeChart.prototype.updateVisualization = function (data) {
     
     if (!_self.svg || _self.svg.select("path").empty()) {
         
-         d3.select("#" + _self.parentId).select("header")
+        d3.select("#" + _self.parentId).select("header")
+            .style("display", "block")
+            .append("div")
+            .style("width", "auto")
             .style("padding-left", "5px")
             .text(_self.text)
-            .style("font-size", "14px");
-
+            .style("font-size", "12px")
+            .style("display", "inline-block");
 
         _self.svg = d3.select("#" + _self.parentId)
             .append("svg")
