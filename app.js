@@ -154,7 +154,7 @@ function initializeCrime(db, callback) {
 
             var temp = {};
             temp[crimeMeta["id"]] = i;
-            temp[crimeMeta["date"]] = "" + parseDate(d[crimeMeta["date"]]);
+            temp[crimeMeta["date"]] = parseDate(d[crimeMeta["date"]]).toISOString();
             temp[crimeMeta["code"]] = d[crimeMeta["code"]];
             temp[crimeMeta["time"]] = d[crimeMeta["time"]];
             temp[crimeMeta["location"]] = d[crimeMeta["location"]];
@@ -510,13 +510,13 @@ function centroid(a, input) {
         var keys = Object.keys(datum);
 
         keys.forEach(function (key) {
-            
+
             if (i == 0) {
-             
+
                 centroid[key] = 0;
-                
+
             }
-            
+
 
             if (isNumeric[key]) {
 
@@ -545,7 +545,7 @@ function centroid(a, input) {
         } else {
 
             centroid[key] = domain[key][Math.round(centroid[key] /
-                                                   a.length)];
+                a.length)];
 
         }
 
@@ -746,7 +746,7 @@ function parseQueryString(params) {
         switch (d.operator) {
 
         case "range":
-            if (d.index == "Date" || d.index == "crimeDate") {
+            if (d.index == "Date" || d.index == "CrimeDate") {
                 q[d.index] = {
                     "$gte": d.value[0],
                     "$lte": d.value[1]

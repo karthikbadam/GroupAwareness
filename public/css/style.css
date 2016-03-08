@@ -95,3 +95,15 @@ header {
     background-image: url("/images/max.png");
     background-size: contain;
 }
+
+brush .extent {
+    fill-opacity: .3;
+    stroke: #fff;
+    shape-rendering: crispEdges;
+}
+
+.brush .extent {
+    stroke: #fff;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+}
