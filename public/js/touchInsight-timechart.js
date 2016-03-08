@@ -64,7 +64,7 @@ TimeChart.prototype.handler = function (left, right, label1, label2) {
     q.append("div")
         .style("width", "auto")
         .style("padding-right", "5px")
-        .text(label1 + "-"  +  label2)
+        .text(month_names_short[label1] + "-"  +  month_names_short[label2])
         .style("font-size", "12px")
         .style("display", "inline-block")
         .style("background-color", "#AAA");
