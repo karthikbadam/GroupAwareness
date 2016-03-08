@@ -68,14 +68,14 @@ header {
     font-size: 2vmin;
 }
 
-.nav-ui iframe body{
+.nav-ui iframe body {
     border: none;
     font-size: 1.5vmin;
 }
 
 .nav-ui .header {
     width: 600px;
-    height: 20px; 
+    height: 20px;
     background-color: #CCC;
     border-top-right-radius: 20px;
     border-top-left-radius: 7px;
@@ -106,4 +106,23 @@ brush .extent {
     stroke: #fff;
     fill-opacity: .125;
     shape-rendering: crispEdges;
+}
+
+.lasso path {
+    stroke: rgb(80, 80, 80);
+    stroke-width: 2px;
+}
+
+.lasso .drawn {
+    fill-opacity: .05;
+}
+
+.lasso .loop_close {
+    fill: none;
+    stroke-dasharray: 4, 4;
+}
+
+.lasso .origin {
+    fill: #222;
+    fill-opacity: .5;
 }

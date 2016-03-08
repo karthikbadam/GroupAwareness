@@ -40,9 +40,12 @@ Bar.prototype.handler = function (value) {
     });
 
     setGlobalQuery(query, 1);
+ 
+    d3.select("#" + _self.parentId).select("header").select(".userQuery").remove();
 
     var q = d3.select("#" + _self.parentId).select("header")
         .append("div")
+        .attr("id", query.index)
         .attr("class", "userQuery")
         .style("display", "inline-block")
         .style("padding-left", "5px");
@@ -59,7 +62,7 @@ Bar.prototype.handler = function (value) {
         .on("click", function () {
 
             d3.select("#" + _self.parentId).select("header")
-                .select("." + "userQuery").remove();
+                .select(".userQuery").remove();
 
             clearQuery(query);
         });

@@ -124,6 +124,8 @@ function clearRecentQuery() {
     if (queryStack.length == 0)
         return;
 
+    d3.select("#" + queryStack[queryStack.length-1].index).remove();
+    
     if (queryStack.length == 1) {
         queryStack.pop();
         getDatafromQuery("empty");
@@ -190,7 +192,7 @@ function clearQuery(query) {
     } else {
         getDatafromQuery("empty");
     }
-
+    
     polychrome.push(query.getQueryString());
 }
 

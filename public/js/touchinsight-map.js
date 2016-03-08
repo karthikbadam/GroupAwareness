@@ -37,6 +37,8 @@ function Map(options) {
     _self.map.on('viewreset', handler);
     _self.map.on('autopanstart', handler);
 
+    _self.map.dragging.disable();
+
 
 }
 
@@ -52,6 +54,8 @@ function computeZoom(ne, sw, pixelWidth) {
 
     return zoom;
 }
+
+
 
 
 Map.prototype.updateVisualization = function (data, flag) {
@@ -78,11 +82,11 @@ Map.prototype.updateVisualization = function (data, flag) {
     _self.bottomRight = _self.map.latLngToLayerPoint(new L.LatLng(_self.left, _self.top));
     _self.topLeft = _self.map.latLngToLayerPoint(new L.LatLng(_self.right, _self.bottom));
 
-    _self.marginLeft = _self.topLeft.x - 5;
-    _self.marginTop = _self.topLeft.y - 5;
-    
+    _self.marginLeft = _self.topLeft.x - 50;
+    _self.marginTop = _self.topLeft.y - 50;
+
     if (flag == true) {
-    
+
     } else {
         _self.map.fitBounds(new L.LatLngBounds(new L.LatLng(_self.left, _self.top), new L.LatLng(_self.right, _self.bottom)));
 
@@ -93,11 +97,88 @@ Map.prototype.updateVisualization = function (data, flag) {
         d3.select(".leaflet-tile-pane").style("opacity", 0.7);
 
         var svg = _self.svg = d3.select(_self.map.getPanes().overlayPane).append("svg")
-            .attr("width", _self.bottomRight.x - _self.topLeft.x + 10)
-            .attr("height", _self.bottomRight.y - _self.topLeft.y + 10)
+            .attr("width", _self.bottomRight.x - _self.topLeft.x + 100)
+            .attr("height", _self.bottomRight.y - _self.topLeft.y + 100)
             .style("margin-left", _self.marginLeft + "px")
             .style("margin-top", _self.marginTop + "px")
             .style("background", "rgba(255, 255, 255, 0.5)");
+
+        // Create the area where the lasso event can be triggered
+        var lasso_area = _self.svg.append("rect")
+            .attr("width", _self.bottomRight.x - _self.topLeft.x + 100)
+            .attr("height", _self.bottomRight.y - _self.topLeft.y + 100)
+            .style("opacity", 0);
+
+
+        var lasso_draw = function () {
+            // Style the possible dots
+            _self.lasso.items().filter(function (d) {
+                    return d.possible === true
+                })
+                .classed({
+                    "not_possible": false,
+                    "possible": true
+                })
+                .attr("r", "8px");
+
+            // Style the not possible dot
+            _self.lasso.items().filter(function (d) {
+                    return d.possible === false
+                })
+                .classed({
+                    "not_possible": true,
+                    "possible": false
+                });
+        };
+
+        var lasso_end = function () {
+            // Style the selected dots
+
+            var selectedSources = [];
+
+            _self.lasso.items().filter(function (d) {
+                    if (d.selected === true) {
+                        selectedSources.push(d["id"]);
+                    }
+
+                    return d.selected === true
+                })
+                .classed({
+                    "not_possible": false,
+                    "possible": false
+                });
+
+            if (selectedSources.length > 0) {
+
+                var query1 = new Query({
+                    index: source,
+                    value: selectedSources,
+                    operator: "in",
+                    logic: currentLogic
+                });
+
+                setGlobalQuery(query1, flag = 1);
+            }
+
+            // Reset the style of the not selected dots
+            _self.lasso.items().filter(function (d) {
+                    return d.selected === false
+                })
+                .classed({
+                    "not_possible": false,
+                    "possible": false
+                })
+                .attr("r", "3px");
+
+        };
+
+        _self.lasso = d3.lasso()
+            .closePathDistance(75) // max distance for the lasso loop to be closed
+            .closePathSelect(true) // can items be selected by closing the path?
+            .hoverSelect(true)
+            .area(lasso_area) // area where the lasso can be started
+            .on("draw", lasso_draw) // lasso draw function
+            .on("end", lasso_end); // lasso end function
 
         //append circle
         _self.svg
@@ -140,10 +221,15 @@ Map.prototype.updateVisualization = function (data, flag) {
                 return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
             });
 
+        _self.lasso.items(d3.selectAll("circle"));
+
+        _self.svg.call(_self.lasso);
+
+
     } else {
 
-        _self.svg.attr("width", _self.bottomRight.x - _self.topLeft.x + 10)
-            .attr("height", _self.bottomRight.y - _self.topLeft.y + 10)
+        _self.svg.attr("width", _self.bottomRight.x - _self.topLeft.x + 100)
+            .attr("height", _self.bottomRight.y - _self.topLeft.y + 100)
             .style("margin-left", _self.marginLeft + "px")
             .style("margin-top", _self.marginTop + "px")
 
@@ -225,6 +311,10 @@ Map.prototype.updateVisualization = function (data, flag) {
                 return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
             });
 
+
+        _self.lasso.items(d3.selectAll("circle"));
+
+        _self.svg.call(_self.lasso);
     }
 
 
