@@ -578,6 +578,11 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                 db.close();
 
+                if (tempData.length == 0) {
+                    res.write(JSON.stringify(tempData));
+                    res.end();
+                }
+
                 var data = new Array(tempData.length);
 
                 tempData.forEach(function (d, i) {
