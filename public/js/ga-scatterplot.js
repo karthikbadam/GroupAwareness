@@ -154,25 +154,32 @@ ScatterPlot.prototype.createViz = function (clusters) {
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 
-    
-    _self.cols
 
-    if (_self.isNumeric[d]) {
+    for (var i = 0; i < 2; i++) {
 
-        return (_self.y[d] = d3.scale.linear()
-            .domain(d3.extent(_self.data, function (p) {
-                return p["_id"][d];
-            }))
-            .range([_self.height, 0]));
+        var d = _self.cols[i];
 
-    } else {
+        if (_self.isNumeric[d]) {
 
-        return (_self.y[d] = d3.scale.ordinal()
-            .domain(_self.data.map(function (p) {
-                return p["_id"][d];
-            }).sort())
-            .rangePoints([_self.height, 0]));
+            _self.y[d] = d3.scale.linear()
+                .domain(d3.extent(_self.data, function (p) {
+                    return p["_id"][d];
+                }))
+                .range([_self.height, 0]);
+
+        } else {
+
+            return (_self.y[d] = d3.scale.ordinal()
+                .domain(_self.data.map(function (p) {
+                    return p["_id"][d];
+                }).sort())
+                .rangePoints([_self.height, 0]));
+        }
+
+
     }
+
+
 
 
     _self.x = d3.scale.linear()
