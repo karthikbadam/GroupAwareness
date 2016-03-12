@@ -62,7 +62,7 @@ var colorscale = d3.scale.category10();
 // awareness visualization
 var awarenessViz;
 var awarenessType = 2;
-// 1 for Barycentric, 2 for parallel coordinates, 3 for radar plot, 4 for user-centered barymap with features
+//  1 for parallel coordinates,  2 for ScatterPlot, 3 for Barycentric, 4 for radar plot, 5 for user-centered barymap with features
 
 // user interactions
 var interactions = [{
@@ -91,11 +91,11 @@ function clearQuery(queryStack, query) {
     if (queryStack.length == 0)
         return;
 
-//    if (queryStack.length == 1) {
-//        queryStack.pop();
-//        getDatafromQuery("empty");
-//        return;
-//    }
+    //    if (queryStack.length == 1) {
+    //        queryStack.pop();
+    //        getDatafromQuery("empty");
+    //        return;
+    //    }
 
     var index = -1;
 
@@ -153,7 +153,7 @@ $(document).ready(function () {
     };
 
     getDataFromQuery("empty");
-
+    
     var options = {};
 
     options.callback = function (query, time, hostDevice, deviceId) {
@@ -218,15 +218,15 @@ function getDataFromQuery(queryList) {
 
         switch (awarenessType) {
         case 1:
-            awarenessViz = new BaryMap({
+                
+            awarenessViz = new ParallelCoord({
                 data: data,
                 cols: baryVertices
             });
             break;
 
-
         case 2:
-            awarenessViz = new ParallelCoord({
+            awarenessViz = new ScatterPlot({
                 data: data,
                 cols: baryVertices
             });
@@ -234,6 +234,14 @@ function getDataFromQuery(queryList) {
 
 
         case 3:
+
+            awarenessViz = new BaryMap({
+                data: data,
+                cols: baryVertices
+            });
+            break;
+
+        case 4:
             awarenessViz = new RadarPlot({
                 data: data,
                 cols: baryVertices
@@ -241,14 +249,14 @@ function getDataFromQuery(queryList) {
             break;
 
 
-        case 4:
+        case 5:
             awarenessViz = new PathViewer({
                 data: data,
                 cols: baryVertices
             });
             break;
 
-        case 5:
+        case 6:
             awarenessViz = new UserMap({
                 data: data,
                 cols: baryVertices
@@ -264,15 +272,12 @@ function getDataFromQuery(queryList) {
 
         }
 
-        awarenessViz.createViz(clusters);
+        awarenessViz.createViz(clusters, data);
 
 
         //        interactions.forEach(function (d, i) {
         //            createUserfromQueryList(d.query, 1);
         //        });
-
-
-
 
     });
 
