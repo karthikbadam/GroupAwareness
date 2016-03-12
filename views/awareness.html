@@ -3,13 +3,20 @@
 <head>
     <title>BaryMap</title>
     <link rel="shortcut icon" href="images/icon.png">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/mui.min.css" rel="stylesheet" />
+
 </head>
 
 <body>
+
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/d3.parcoords.css" />
     <link rel="stylesheet" type="text/css" href="css/opensans.css" />
 
+    <script src="js/mui.min.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/underscore.js"></script>
     <script src="js/underscore.math.js"></script>
@@ -33,8 +40,16 @@
     <script src="js/ga-barycentric.js"></script>
     <script src="js/ga-awareness.js"></script>
 
-    <div id="content" class="parcoords">
-    </div>
+    <ul class="mui-tabs__bar mui-tabs__bar--justified">
+        <li class="mui--is-active">
+            <a data-mui-toggle="tab" data-mui-controls="content-parallel">Parallel Coordinates</a>
+        </li>
+        <li>
+            <a data-mui-toggle="tab" data-mui-controls="content-scatterplot">ScatterPlot</a>
+        </li>
+    </ul>
+    <div class="mui-tabs__pane mui--is-active" id="content-parallel"></div>
+    <div class="mui-tabs__pane" id="content-scatterplot">ScatterPlot</div>
 
 </body>
 

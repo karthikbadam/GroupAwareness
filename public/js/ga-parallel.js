@@ -159,7 +159,10 @@ ParallelCoord.prototype.createViz = function (clusters) {
         }));
     }
 
-    var svg = _self.svg = d3.select("#content").append("svg")
+    var svg = _self.svg = d3.select("#content-parallel")
+        .attr("width", _self.width + _self.margin.left + _self.margin.right)
+        .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+        .append("svg")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
         .append("g")

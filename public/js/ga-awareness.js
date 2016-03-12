@@ -52,8 +52,8 @@ crimeMeta["lon"] = "Longitude";
 var baryVertices = ["District", "Description", "Weapon", "Post"];
 
 var width = 0;
-
 var height = 0;
+var tabHeight = 30;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -139,8 +139,8 @@ function clearQuery(queryStack, query) {
 $(document).ready(function () {
 
     //creating the layout
-    width = $("#content").width();
-    height = $("#content").height();
+    width = $("body").width();
+    height = $("body").height() - tabHeight;
 
     var query = {
         index1: budget,
