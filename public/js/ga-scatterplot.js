@@ -159,34 +159,46 @@ ScatterPlot.prototype.createViz = function (clusters) {
 
         var d = _self.cols[i];
 
-        if (_self.isNumeric[d]) {
+        if (i == 0) {
 
-            _self.y[d] = d3.scale.linear()
-                .domain(d3.extent(_self.data, function (p) {
-                    return p["_id"][d];
-                }))
-                .range([_self.height, 0]);
+            if (_self.isNumeric[d]) {
+
+                _self.x[d] = d3.scale.linear()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return p["_id"][d];
+                    }))
+                    .range([_self.height, 0]);
+
+            } else {
+
+                _self.x[d] = d3.scale.ordinal()
+                    .domain(_self.data.map(function (p) {
+                        return p["_id"][d];
+                    }).sort())
+                    .rangePoints([_self.height, 0]);
+            }
 
         } else {
 
-            return (_self.y[d] = d3.scale.ordinal()
-                .domain(_self.data.map(function (p) {
-                    return p["_id"][d];
-                }).sort())
-                .rangePoints([_self.height, 0]));
+
+            if (_self.isNumeric[d]) {
+
+                _self.y[d] = d3.scale.linear()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return p["_id"][d];
+                    }))
+                    .range([_self.height, 0]);
+
+            } else {
+
+                _self.y[d] = d3.scale.ordinal()
+                    .domain(_self.data.map(function (p) {
+                        return p["_id"][d];
+                    }).sort())
+                    .rangePoints([_self.height, 0]);
+            }
         }
-
-
     }
-
-
-
-
-    _self.x = d3.scale.linear()
-        .range([0, _self.width]);
-
-    _self.y = d3.scale.linear()
-        .range([_self.height, 0]);
 
     _self.color = d3.scale.category10();
 
