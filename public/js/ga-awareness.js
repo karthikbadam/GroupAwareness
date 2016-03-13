@@ -63,7 +63,8 @@ var colorscale = d3.scale.category10();
 var awarenessViz;
 var awarenessType = 2;
 //  1 for parallel coordinates,  2 for ScatterPlot, 3 for Barycentric, 4 for radar plot, 5 for user-centered barymap with features
-var parallelAwarenessViz, scatterplotAwarenessViz;
+var parallelAwarenessViz = null;
+var scatterplotAwarenessViz = null;
 
 // user interactions
 var interactions = [{
@@ -194,24 +195,66 @@ $(document).ready(function () {
 
     polychrome = new Sync(options);
 
+    $(".tabs_pane").click(function () {
 
-    //handling tabs
-    var toggleEls = document.querySelectorAll('[data-mui-controls^="pane-events-"]');
+        switch ($(this).html()) {
+        case "Parallel Coordinates":
 
-    function logFn(ev) {
-        var s = '[' + ev.type + ']';
-        s += ' paneId: ' + ev.paneId;
-        s += ' relatedPaneId: ' + ev.relatedPaneId;
-        console.log(s);
-    }
+            if (parallelAwarenessViz == null) {
 
-    // attach event handlers
-    for (var i = 0; i < toggleEls.length; i++) {
-        toggleEls[i].addEventListener('mui.tabs.showstart', logFn);
-        toggleEls[i].addEventListener('mui.tabs.showend', logFn);
-        toggleEls[i].addEventListener('mui.tabs.hidestart', logFn);
-        toggleEls[i].addEventListener('mui.tabs.hideend', logFn);
-    }
+                parallelAwarenessViz = new ParallelCoord({
+                    data: data,
+                    cols: baryVertices
+                });
+
+                parallelAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultdata);
+
+            }
+
+            awarenessViz = parallelAwarenessViz;
+
+            break;
+
+        case "ScatterPlot":
+
+            if (scatterplotAwarenessViz == null) {
+
+                scatterplotAwarenessViz = new ScatterPlot({
+                    data: data,
+                    cols: baryVertices
+                });
+
+                scatterplotAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultdata);
+
+            }
+
+            awarenessViz = scatterplotAwarenessViz;
+
+            break;
+
+        case "BaryMap":
+
+            break;
+
+        case "Radar Plot":
+
+            break;
+
+        case "BaryMap User":
+
+            break;
+
+        default:
+
+            break;
+
+        }
+
+        console.log("tab clicked #" + $(this).html());
+
+    });
+
+
 
 });
 
@@ -242,6 +285,9 @@ function getDataFromQuery(queryList) {
                 data: data,
                 cols: baryVertices
             });
+
+            awarenessViz = parallelAwarenessViz;
+
             break;
 
         case 2:
@@ -249,8 +295,10 @@ function getDataFromQuery(queryList) {
                 data: data,
                 cols: baryVertices
             });
-            break;
 
+            awarenessViz = scatterplotAwarenessViz;
+
+            break;
 
         case 3:
 
