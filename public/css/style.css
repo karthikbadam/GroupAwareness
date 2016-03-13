@@ -4,10 +4,7 @@ body {
     height: 100%;
     overflow: hidden;
     margin: 0px;
-    font-family: Open Sans;
-    /*    "Helvetica Neue", "Segoe UI", Helvetica-Light, Arial, sans-serif;*/
-    
-    font-size: 0.7em;
+    font-size: 0.8em;
     background-color: white;
 }
 
@@ -138,10 +135,16 @@ brush .extent {
 }
 
 .mui-tabs__bar>li>a {
-    font-weight: 500;
-    font-size: 11px;
     cursor: default;
-    height: 30px;
-    line-height: 30px;
+    height: 20px;
+    line-height: 20px;
 }
 
+#settings {
+    height: 20px;
+    line-height: 20px;
+    margin: 3px;
+    font-size: 1em;
+    background-color: #2196F3; 
+    float: right;
+}

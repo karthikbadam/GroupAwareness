@@ -12,9 +12,13 @@
 
 <body>
 
-    <link rel="stylesheet" href="css/style.css" />
+    
     <link rel="stylesheet" href="css/d3.parcoords.css" />
     <link rel="stylesheet" type="text/css" href="css/opensans.css" />
+    <link rel="stylesheet" href="css/material.min.css">
+    <script src="js/material.min.js"></script>
+    <link rel="stylesheet" href="css/icon.css">
+    <link rel="stylesheet" href="css/style.css" />
 
     <script src="js/mui.min.js"></script>
     <script src="js/firebase.js"></script>
@@ -45,10 +49,13 @@
         <li>
             <a class="tabs_pane" data-mui-toggle="tab" data-mui-controls="content-parallel">Parallel Coordinates</a>
         </li>
-        <li  class="mui--is-active">
+        <li class="mui--is-active">
             <a class="tabs_pane" data-mui-toggle="tab" data-mui-controls="content-scatterplot">ScatterPlot</a>
         </li>
     </ul>
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="settings">
+        Add Dimensions
+    </button>
     <div class="mui-tabs__pane" id="content-parallel"></div>
     <div class="mui-tabs__pane mui--is-active" id="content-scatterplot"></div>
 

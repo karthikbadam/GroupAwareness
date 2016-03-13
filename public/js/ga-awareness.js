@@ -243,6 +243,12 @@ $(document).ready(function () {
         case "BaryMap User":
 
             break;
+                
+        case "Settings":
+                
+            
+
+            break;
 
         default:
 

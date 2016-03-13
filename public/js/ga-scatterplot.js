@@ -7,7 +7,7 @@ function ScatterPlot(options) {
     _self.cols = options.cols;
 
     _self.margin = {
-        top: 40,
+        top: 20,
         right: 30,
         bottom: 30,
         left: 100
@@ -214,6 +214,7 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
         .append("svg")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+        .style("font-size", "0.6em")
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 
@@ -258,7 +259,7 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
                     .domain(_self.defaultData.map(function (p) {
                         return p["_id"][d];
                     }).sort())
-                    .rangePoints([_self.height, 0]);
+                    .rangePoints([_self.height, 7]);
             }
         }
     }
