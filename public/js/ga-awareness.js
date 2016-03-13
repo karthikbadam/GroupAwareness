@@ -63,6 +63,7 @@ var colorscale = d3.scale.category10();
 var awarenessViz;
 var awarenessType = 2;
 //  1 for parallel coordinates,  2 for ScatterPlot, 3 for Barycentric, 4 for radar plot, 5 for user-centered barymap with features
+var parallelAwarenessViz, scatterplotAwarenessViz;
 
 // user interactions
 var interactions = [{
@@ -132,7 +133,6 @@ function clearQuery(queryStack, query) {
     }
 
     query.logic == "UNDO";
-
 }
 
 
@@ -153,7 +153,7 @@ $(document).ready(function () {
     };
 
     getDataFromQuery("empty");
-    
+
     var options = {};
 
     options.callback = function (query, time, hostDevice, deviceId) {
@@ -194,6 +194,25 @@ $(document).ready(function () {
 
     polychrome = new Sync(options);
 
+
+    //handling tabs
+    var toggleEls = document.querySelectorAll('[data-mui-controls^="pane-events-"]');
+
+    function logFn(ev) {
+        var s = '[' + ev.type + ']';
+        s += ' paneId: ' + ev.paneId;
+        s += ' relatedPaneId: ' + ev.relatedPaneId;
+        console.log(s);
+    }
+
+    // attach event handlers
+    for (var i = 0; i < toggleEls.length; i++) {
+        toggleEls[i].addEventListener('mui.tabs.showstart', logFn);
+        toggleEls[i].addEventListener('mui.tabs.showend', logFn);
+        toggleEls[i].addEventListener('mui.tabs.hidestart', logFn);
+        toggleEls[i].addEventListener('mui.tabs.hideend', logFn);
+    }
+
 });
 
 function getDataFromQuery(queryList) {
@@ -218,15 +237,15 @@ function getDataFromQuery(queryList) {
 
         switch (awarenessType) {
         case 1:
-                
-            awarenessViz = new ParallelCoord({
+
+            parallelAwarenessViz = new ParallelCoord({
                 data: data,
                 cols: baryVertices
             });
             break;
 
         case 2:
-            awarenessViz = new ScatterPlot({
+            scatterplotAwarenessViz = new ScatterPlot({
                 data: data,
                 cols: baryVertices
             });
