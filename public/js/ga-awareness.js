@@ -243,12 +243,6 @@ $(document).ready(function () {
         case "BaryMap User":
 
             break;
-                
-        case "Settings":
-                
-            
-
-            break;
 
         default:
 
@@ -260,8 +254,55 @@ $(document).ready(function () {
 
     });
 
+    //Settings 
 
+    var dialog = document.querySelector('#dimensionsDialog');
+    var showDialogButton = document.querySelector('#settings');
 
+    if (!dialog.showModal) {
+        dialogPolyfill.registerDialog(dialog);
+    }
+
+    showDialogButton.addEventListener('click', function () {
+        dialog.showModal();
+    });
+
+    dialog.querySelector('.close').addEventListener('click', function () {
+        dialog.close();
+    });
+
+    dialog.querySelector('#dimensionsChanged').addEventListener('click', function () {
+
+        dialog.close();
+    });
+
+    //creating the checkboxes
+    var dKeys = Object.keys(crimeMeta);
+    for (var i = 0; i < dKeys.length; i++) {
+
+        var key = dKeys[i];
+
+        if (key == "id") {
+            continue;
+        }
+
+        var variable = crimeMeta[key];
+
+        var label = d3.select("#dimensionsDialogContent")
+            .append("label")
+            .attr("class", "mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect")
+            .attr("for", "checkbox-" + variable);
+
+        label.append("input")
+            .attr("type", "checkbox")
+            .attr("id", "checkbox-" + variable)
+            .attr("class", "mdl-checkbox__input");
+
+        label.append("span")
+            .attr("class", "mdl-checkbox__label")
+            .text(variable);
+
+    }
 });
 
 function getDataFromQuery(queryList) {

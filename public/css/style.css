@@ -148,3 +148,12 @@ brush .extent {
     background-color: #2196F3; 
     float: right;
 }
+
+.mdl-checkbox {
+    height: 15px;
+}
+
+.mdl-dialog__content {
+    padding: 10px 10px 10px;
+    color: rgba(0,0,0,.54);
+}
