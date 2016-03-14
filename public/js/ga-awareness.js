@@ -48,8 +48,8 @@ crimeMeta["neighborhood"] = "Neighborhood";
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
-//var baryVertices = [gross, budget, tomatoRating, imdbvotes, sales];
-var baryVertices = ["District", "Description", "Weapon", "Post"];
+//var awarenessDimensions = [gross, budget, tomatoRating, imdbvotes, sales];
+var awarenessDimensions = ["District", "Description", "Weapon", "Post"];
 
 var width = 0;
 var height = 0;
@@ -65,6 +65,17 @@ var awarenessType = 2;
 //  1 for parallel coordinates,  2 for ScatterPlot, 3 for Barycentric, 4 for radar plot, 5 for user-centered barymap with features
 var parallelAwarenessViz = null;
 var scatterplotAwarenessViz = null;
+
+Array.prototype.compare = function (testArr) {
+    if (this.length != testArr.length) return false;
+    for (var i = 0; i < testArr.length; i++) {
+        if (this[i].compare) {
+            if (!this[i].compare(testArr[i])) return false;
+        }
+        if (this[i] !== testArr[i]) return false;
+    }
+    return true;
+}
 
 // user interactions
 var interactions = [{
@@ -204,7 +215,7 @@ $(document).ready(function () {
 
                 parallelAwarenessViz = new ParallelCoord({
                     data: data,
-                    cols: baryVertices
+                    cols: awarenessDimensions
                 });
 
                 parallelAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultdata);
@@ -221,7 +232,7 @@ $(document).ready(function () {
 
                 scatterplotAwarenessViz = new ScatterPlot({
                     data: data,
-                    cols: baryVertices
+                    cols: awarenessDimensions
                 });
 
                 scatterplotAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultdata);
@@ -264,6 +275,16 @@ $(document).ready(function () {
     }
 
     showDialogButton.addEventListener('click', function () {
+
+        //check the ones on awarenessDimensions
+        d3.selectAll('.checkbox-input').property('checked', false);
+
+        awarenessDimensions.forEach(function (d, i) {
+
+            d3.select("#checkbox-" + d).property('checked', true);
+
+        });
+
         dialog.showModal();
     });
 
@@ -272,6 +293,28 @@ $(document).ready(function () {
     });
 
     dialog.querySelector('#dimensionsChanged').addEventListener('click', function () {
+
+        dimArray = [];
+
+        // Done button
+        d3.selectAll('.checkbox-input')[0].forEach(function (e) {
+
+            var dim = e.id.replace("checkbox-", "");
+
+            if (e.checked) {
+
+                dimArray.push(dim);
+            }
+
+        });
+
+        if (!dimArray.sort().compare(awarenessDimensions.sort())) {
+            awarenessDimensions = dimArray;
+            console.log(dimArray);
+            
+            awarenessViz.updateDimensions(awarenessDimensions);
+        }
+
 
         dialog.close();
     });
@@ -289,18 +332,18 @@ $(document).ready(function () {
         var variable = crimeMeta[key];
 
         var label = d3.select("#dimensionsDialogContent")
-            .append("label")
-            .attr("class", "mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect")
-            .attr("for", "checkbox-" + variable);
+            .append("span")
+            .attr("id", "checkboxlabel-" + variable)
+            .style("padding-left", "25px")
+            .style("padding-right", "25px")
+            .text(variable + ": ");
 
         label.append("input")
             .attr("type", "checkbox")
             .attr("id", "checkbox-" + variable)
-            .attr("class", "mdl-checkbox__input");
+            .attr("class", "checkbox-input");
 
-        label.append("span")
-            .attr("class", "mdl-checkbox__label")
-            .text(variable);
+        //label.append("br");
 
     }
 });
@@ -330,7 +373,7 @@ function getDataFromQuery(queryList) {
 
             parallelAwarenessViz = new ParallelCoord({
                 data: data,
-                cols: baryVertices
+                cols: awarenessDimensions
             });
 
             awarenessViz = parallelAwarenessViz;
@@ -340,7 +383,7 @@ function getDataFromQuery(queryList) {
         case 2:
             scatterplotAwarenessViz = new ScatterPlot({
                 data: data,
-                cols: baryVertices
+                cols: awarenessDimensions
             });
 
             awarenessViz = scatterplotAwarenessViz;
@@ -351,14 +394,14 @@ function getDataFromQuery(queryList) {
 
             awarenessViz = new BaryMap({
                 data: data,
-                cols: baryVertices
+                cols: awarenessDimensions
             });
             break;
 
         case 4:
             awarenessViz = new RadarPlot({
                 data: data,
-                cols: baryVertices
+                cols: awarenessDimensions
             });
             break;
 
@@ -366,21 +409,21 @@ function getDataFromQuery(queryList) {
         case 5:
             awarenessViz = new PathViewer({
                 data: data,
-                cols: baryVertices
+                cols: awarenessDimensions
             });
             break;
 
         case 6:
             awarenessViz = new UserMap({
                 data: data,
-                cols: baryVertices
+                cols: awarenessDimensions
             });
             break;
 
         default:
             awarenessViz = new PathViewer({
                 data: data,
-                cols: baryVertices
+                cols: awarenessDimensions
             });
             break;
 
