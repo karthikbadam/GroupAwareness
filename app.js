@@ -444,7 +444,7 @@ var reverse = {};
 var distance = function (a, b) {
     var d = 0;
     //var cols = Object.keys(a);
-    cols = ["District", "Description", "Weapon", "Post"];
+    cols = ["District", "Description", "Weapon", "Post", "CrimeDate"];
 
     for (var i = 0; i < cols.length; i++) {
 

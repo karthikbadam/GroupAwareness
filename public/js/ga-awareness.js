@@ -214,11 +214,28 @@ $(document).ready(function () {
             if (parallelAwarenessViz == null) {
 
                 parallelAwarenessViz = new ParallelCoord({
-                    data: data,
+                    data: awarenessViz.defaultData,
                     cols: awarenessDimensions
                 });
 
-                parallelAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultdata);
+                parallelAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultData);
+
+            }
+
+            awarenessType = 1;
+
+            parallelAwarenessViz.updateDimensions(awarenessDimensions);
+
+            var users = Object.keys(awarenessViz.userData);
+
+            if (users) {
+
+                users.forEach(function (user) {
+
+                    parallelAwarenessViz
+                        .createUser(awarenessViz.userData[user], user, awarenessViz.userClusters[user]);
+
+                });
 
             }
 
@@ -231,11 +248,28 @@ $(document).ready(function () {
             if (scatterplotAwarenessViz == null) {
 
                 scatterplotAwarenessViz = new ScatterPlot({
-                    data: data,
+                    data: awarenessViz.defaultData,
                     cols: awarenessDimensions
                 });
 
-                scatterplotAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultdata);
+                scatterplotAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultData);
+
+            }
+
+            awarenessType = 2;
+
+            scatterplotAwarenessViz.updateDimensions(awarenessDimensions);
+
+            var users = Object.keys(awarenessViz.userData);
+
+            if (users) {
+
+                users.forEach(function (user) {
+
+                    scatterplotAwarenessViz
+                        .createUser(awarenessViz.userData[user], user, awarenessViz.userClusters[user]);
+
+                });
 
             }
 
@@ -245,13 +279,19 @@ $(document).ready(function () {
 
         case "BaryMap":
 
+            awarenessType = 3;
+
             break;
 
         case "Radar Plot":
 
+            awarenessType = 4;
+
             break;
 
         case "BaryMap User":
+
+            awarenessType = 5;
 
             break;
 
@@ -281,6 +321,15 @@ $(document).ready(function () {
 
         awarenessDimensions.forEach(function (d, i) {
 
+
+            if (awarenessType == 2) {
+
+                if (i > 1) {
+                    return;
+                }
+
+            }
+
             d3.select("#checkbox-" + d).property('checked', true);
 
         });
@@ -309,9 +358,11 @@ $(document).ready(function () {
         });
 
         if (!dimArray.sort().compare(awarenessDimensions.sort())) {
-            awarenessDimensions = dimArray;
-            console.log(dimArray);
             
+            awarenessDimensions = dimArray;
+            
+            console.log(dimArray);
+
             awarenessViz.updateDimensions(awarenessDimensions);
         }
 

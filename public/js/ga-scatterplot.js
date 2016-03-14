@@ -42,8 +42,11 @@ function ScatterPlot(options) {
             }
         }
     }
-    
+
     _self.userData = {};
+    _self.userClusters = {};
+
+    _self.parseTime = d3.time.format("%H:%M:%S").parse;
 
 }
 
@@ -75,11 +78,32 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
     var _self = this;
 
     _self.tempData = _self.userData[user] = data;
+    _self.userClusters[user] = clusters;
 
     for (var i = 0; i < _self.tempData.length; i++) {
 
-        _self.tempData[i].x = _self.x(_self.tempData[i]["_id"][_self.cols[0]]);
-        _self.tempData[i].y = _self.y(_self.tempData[i]["_id"][_self.cols[1]]);
+        var xValue = _self.tempData[i]["_id"][_self.cols[0]];
+
+        if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+            xValue = new Date(xValue);
+        }
+
+        if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+            xValue = _self.parseTime(xValue);
+        }
+
+        var yValue = _self.tempData[i]["_id"][_self.cols[1]];
+
+        if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+            yValue = new Date(yValue);
+        }
+
+        if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+            yValue = _self.parseTime(yValue);
+        }
+
+        _self.tempData[i].x = _self.x(xValue);
+        _self.tempData[i].y = _self.y(yValue);
 
     }
 
@@ -103,6 +127,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
         }).style("fill", colorscale(user))
         .style("fill-opacity", 0.25)
         .style("stroke-width", "2px")
+        .style("stroke-opacity", 0.25)
         .style("stroke", colorscale(user));
 
 }
@@ -193,6 +218,23 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
                     }))
                     .range([0, _self.width]);
 
+            } else if (d.toLowerCase().indexOf("date") > 0) {
+
+                _self.x = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return new Date(p["_id"][d]);
+                    }))
+                    .range([0, _self.width]);
+
+            } else if (d.toLowerCase().indexOf("time") > 0) {
+
+                _self.x = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return _self.parseTime(p["_id"][d]);
+                    }))
+                    .range([0, _self.width]);
+
+
             } else {
 
                 _self.x = d3.scale.ordinal()
@@ -213,6 +255,23 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
                     }))
                     .range([_self.height, 0]);
 
+            } else if (d.toLowerCase().indexOf("date") > 0) {
+
+                _self.y = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return new Date(p["_id"][d]);
+                    }))
+                    .range([_self.height, 0]);
+
+            } else if (d.toLowerCase().indexOf("time") > 0) {
+
+                _self.y = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return _self.parseTime(p["_id"][d]);
+                    }))
+                    .range([_self.height, 0]);
+
+
             } else {
 
                 _self.y = d3.scale.ordinal()
@@ -226,17 +285,35 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
 
     _self.xAxis = d3.svg.axis()
         .scale(_self.x)
-        .orient("top")
-        .tickFormat(function (d) {
-            return d;
-        });
+        .orient("top");
 
     _self.yAxis = d3.svg.axis()
         .scale(_self.y)
-        .orient("left")
-        .tickFormat(function (d) {
-            return d;
-        });
+        .orient("left");
+    
+    var FONTWIDTH = 6;
+
+    if (_self.x.domain().length > _self.height / FONTWIDTH) {
+
+        var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.x.domain().length)));
+
+        _self.xAxis.tickValues(_self.x.domain()
+            .filter(function (d, i) {
+                return !(i % skip);
+            }));
+
+    }
+
+    if (_self.y.domain().length > _self.height / FONTWIDTH) {
+
+        var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.y.domain().length)));
+
+        _self.yAxis.tickValues(_self.y.domain()
+            .filter(function (d, i) {
+                return !(i % skip);
+            }));
+
+    }
 
     _self.svg.select(".x.axis")
         .attr("transform", "translate(0,0)")
@@ -277,9 +354,23 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
             return _self.radius(d["value"]);
         })
         .attr("cx", function (d) {
+            if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+                return _self.x(new Date(d["key"][_self.cols[0]]));
+            }
+
+            if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+                return _self.x(_self.parseTime(d["key"][_self.cols[0]]));
+            }
             return _self.x(d["key"][_self.cols[0]]);
         })
         .attr("cy", function (d) {
+            if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+                return _self.y(new Date(d["key"][_self.cols[1]]));
+            }
+
+            if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+                return _self.y(_self.parseTime(d["key"][_self.cols[1]]));
+            }
             return _self.y(d["key"][_self.cols[1]]);
         })
         .style("fill", function (d) {
@@ -299,9 +390,23 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
             return _self.radius(d["value"]);
         })
         .attr("cx", function (d) {
+            if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+                return _self.x(new Date(d["key"][_self.cols[0]]));
+            }
+
+            if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+                return _self.x(_self.parseTime(d["key"][_self.cols[0]]));
+            }
             return _self.x(d["key"][_self.cols[0]]);
         })
         .attr("cy", function (d) {
+            if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+                return _self.y(new Date(d["key"][_self.cols[1]]));
+            }
+
+            if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+                return _self.y(_self.parseTime(d["key"][_self.cols[1]]));
+            }
             return _self.y(d["key"][_self.cols[1]]);
         })
         .style("fill", function (d) {
@@ -314,15 +419,18 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
         .style("fill-opacity", function (d) {
             return 0.5;
         });
-    
-    var users = Object.keys(_self.userData);
-    
-    users.forEach(function (user) {
-        
-        _self.createUser(_self.userData[user], user);
-        
-    });
 
+    var users = Object.keys(_self.userData);
+
+    if (users) {
+
+        users.forEach(function (user) {
+
+            _self.createUser(_self.userData[user], user, _self.userClusters[user]);
+
+        });
+
+    }
 
 }
 
@@ -359,6 +467,23 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
                     }))
                     .range([0, _self.width]);
 
+            } else if (d.toLowerCase().indexOf("date") > 0) {
+
+                _self.x = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return new Date(p["_id"][d]);
+                    }))
+                    .range([0, _self.width]);
+
+            } else if (d.toLowerCase().indexOf("time") > 0) {
+
+                _self.x = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return _self.parseTime(p["_id"][d]);
+                    }))
+                    .range([0, _self.width]);
+
+
             } else {
 
                 _self.x = d3.scale.ordinal()
@@ -379,6 +504,23 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
                     }))
                     .range([_self.height, 0]);
 
+            } else if (d.toLowerCase().indexOf("date") > 0) {
+
+                _self.y = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return new Date(p["_id"][d]);
+                    }))
+                    .range([_self.height, 0]);
+
+            } else if (d.toLowerCase().indexOf("time") > 0) {
+
+                _self.y = d3.time.scale()
+                    .domain(d3.extent(_self.data, function (p) {
+                        return _self.parseTime(p["_id"][d]);
+                    }))
+                    .range([_self.height, 0]);
+
+
             } else {
 
                 _self.y = d3.scale.ordinal()
@@ -394,17 +536,35 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
 
     _self.xAxis = d3.svg.axis()
         .scale(_self.x)
-        .orient("top")
-        .tickFormat(function (d) {
-            return d;
-        });
+        .orient("top");
 
     _self.yAxis = d3.svg.axis()
         .scale(_self.y)
-        .orient("left")
-        .tickFormat(function (d) {
-            return d;
-        });
+        .orient("left");
+
+    var FONTWIDTH = 6;
+
+    if (_self.x.domain().length > _self.height / FONTWIDTH) {
+
+        var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.x.domain().length)));
+
+        _self.xAxis.tickValues(_self.x.domain()
+            .filter(function (d, i) {
+                return !(i % skip);
+            }));
+
+    }
+
+    if (_self.y.domain().length > _self.height / FONTWIDTH) {
+
+        var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.y.domain().length)));
+
+        _self.yAxis.tickValues(_self.y.domain()
+            .filter(function (d, i) {
+                return !(i % skip);
+            }));
+
+    }
 
     _self.svg.append("g")
         .attr("class", "x axis")
@@ -449,9 +609,23 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
             return _self.radius(d["value"]);
         })
         .attr("cx", function (d) {
+            if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+                return _self.x(new Date(d["key"][_self.cols[0]]));
+            }
+
+            if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+                return _self.x(_self.parseTime(d["key"][_self.cols[0]]));
+            }
             return _self.x(d["key"][_self.cols[0]]);
         })
         .attr("cy", function (d) {
+            if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+                return _self.y(new Date(d["key"][_self.cols[1]]));
+            }
+
+            if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+                return _self.y(_self.parseTime(d["key"][_self.cols[1]]));
+            }
             return _self.y(d["key"][_self.cols[1]]);
         })
         .style("fill", function (d) {
@@ -464,27 +638,4 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
         .style("fill-opacity", function (d) {
             return 0.5;
         });
-
-    dots.exit().remove();
-
-    dots.attr("r", function (d) {
-            return _self.radius(d["value"]);
-        })
-        .attr("cx", function (d) {
-            return _self.x(d["key"][_self.cols[0]]);
-        })
-        .attr("cy", function (d) {
-            return _self.y(d["key"][_self.cols[1]]);
-        })
-        .style("fill", function (d) {
-            //return "#4292c6";
-            return "#AAA";
-            if (_self.cols.length > 2) {
-                return _self.color(d[_self.cols[2]]);
-            }
-        })
-        .style("fill-opacity", function (d) {
-            return 0.5;
-        })
-
 }

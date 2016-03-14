@@ -3,7 +3,7 @@ function Sync(options) {
     var _self = this;
 
     var queryRef = _self.queryRef = new
-    Firebase('touchinsight.firebaseIO.com');
+    Firebase('groupawareness.firebaseIO.com');
 
     queryRef.on('child_added',
         function (snapshot) {
