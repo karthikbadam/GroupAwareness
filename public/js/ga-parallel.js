@@ -19,11 +19,13 @@ function ParallelCoord(options) {
 
     _self.isNumeric = {};
 
+    var allKeys = Object.keys(crimeMeta);
+
     for (var i = 0; i < _self.data.length; i++) {
 
-        for (var j = 0; j < _self.cols.length; j++) {
+        for (var j = 0; j < allKeys.length; j++) {
 
-            var key = _self.cols[j];
+            var key = crimeMeta[allKeys[j]];
 
             var value = _self.data[i]["_id"][key];
 
@@ -39,6 +41,9 @@ function ParallelCoord(options) {
         }
     }
 
+    _self.userData = {};
+    
+    _self.userClusters = {};
 }
 
 
@@ -56,12 +61,8 @@ ParallelCoord.prototype.clusterAxis = function (data) {
 
             var datumValue = _self.data[i]["_id"][d];
 
-
         }
-
     });
-
-
 }
 
 
@@ -69,6 +70,10 @@ ParallelCoord.prototype.createUser = function (data, user, clusters) {
 
     var _self = this;
 
+    _self.userData[user] = data;
+    _self.userClusters[user] = clusters;
+    
+    
     _self.svg.selectAll(".foreground" + user).remove();
 
     var newClusters = [];
@@ -134,6 +139,119 @@ ParallelCoord.prototype.createUser = function (data, user, clusters) {
 
 }
 
+ParallelCoord.prototype.updateDimensions = function (cols) {
+
+    var _self = this;
+
+    _self.cols = cols;
+    
+    var clusters = _self.defaultClusters;
+
+    var data = _self.defaultData;
+
+    // Extract the list of dimensions and create a scale for each.
+    _self.x.domain(_self.cols.filter(function (d) {
+
+        if (_self.isNumeric[d]) {
+
+            return (_self.y[d] = d3.scale.linear()
+                .domain(d3.extent(_self.data, function (p) {
+                    return p["_id"][d];
+                }))
+                .range([_self.height, 0]));
+
+        } else {
+
+            return (_self.y[d] = d3.scale.ordinal()
+                .domain(_self.data.map(function (p) {
+                    return p["_id"][d];
+                }).sort())
+                .rangePoints([_self.height, 0]));
+        }
+    }));
+
+    var newClusters = [];
+
+    clusters.forEach(function (cluster) {
+
+        var newCluster = [];
+
+        var min = cluster.min;
+        var max = cluster.max;
+
+        var keys = _self.cols;
+
+        keys.forEach(function (key) {
+
+            var temp = {};
+            temp["key"] = key;
+            temp["min"] = min[key];
+            temp["max"] = max[key];
+
+            newCluster.push(temp);
+        });
+
+        newClusters.push(newCluster);
+
+    });
+
+    // Add grey background lines for context.
+    var paths = _self.svg
+        .select(".background")
+        .selectAll("path")
+        .data(newClusters);
+    
+    paths.enter().append("path")
+        .attr("d", function (d) {
+            return _self.area(d);
+        })
+        .style("fill", "#AAA")
+        .style("fill-opacity", 0.05);
+    
+    paths.exit().remove();
+    
+    paths.attr("d", function (d) {
+            return _self.area(d);
+        })
+        .style("fill", "#AAA")
+        .style("fill-opacity", 0.05);
+
+    _self.svg.selectAll(".dimension").remove();
+    
+    // Add a group element for each dimension.
+    var g = _self.g = _self.svg.selectAll(".dimension")
+        .data(_self.cols)
+        .enter().append("g")
+        .attr("class", "dimension")
+        .attr("transform", function (d) {
+            return "translate(" + _self.x(d) + ")";
+        })
+        .style("fill", "#222");
+
+    // Add an axis and title.
+    _self.g.append("g")
+        .attr("class", "axis")
+        .style("fill", "#aaa")
+        .each(function (d) {
+            d3.select(this).call(_self.axis.scale(_self.y[d])).style("fill", "#222").style("stroke", "none");
+        })
+        .append("text")
+        .style("text-anchor", "middle")
+        .attr("y", -9)
+        .text(function (d) {
+            return d.replace(/_/g, " ");
+        });
+    
+    var users = Object.keys(_self.userData);
+    
+    users.forEach(function (user) {
+        
+        _self.createUser(_self.userData[user], user, _self.userClusters[user]);
+        
+    });
+
+}
+
 ParallelCoord.prototype.createViz = function (clusters) {
 
     var _self = this;
@@ -165,7 +283,7 @@ ParallelCoord.prototype.createViz = function (clusters) {
         .append("svg")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .style("font-size", "0.6em")        
+        .style("font-size", "0.6em")
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 
