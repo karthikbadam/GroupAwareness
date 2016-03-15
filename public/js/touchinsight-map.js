@@ -138,10 +138,12 @@ Map.prototype.updateVisualization = function (data, flag) {
 
             _self.lasso.items().filter(function (d) {
                     if (d.selected === true) {
-                        selectedSources.push(d["id"]);
+                        d["ids"].forEach(function (cid) {
+                            selectedSources.push(cid);
+                        })
                     }
 
-                    return d.selected === true
+                    return d.selected === true;
                 })
                 .classed({
                     "not_possible": false,
@@ -151,13 +153,49 @@ Map.prototype.updateVisualization = function (data, flag) {
             if (selectedSources.length > 0) {
 
                 var query1 = new Query({
-                    index: source,
+                    index: "id",
                     value: selectedSources,
                     operator: "in",
-                    logic: currentLogic
+                    logic: "AND"
                 });
 
                 setGlobalQuery(query1, flag = 1);
+
+                d3.select("#" + _self.parentId).select("header").style("z-index", 100)
+                    .style("background-color", "white").style("color", "black")
+                    .select(".userQuery").remove();
+
+                var q = d3.select("#" + _self.parentId).select("header")
+                    .append("div")
+                    .attr("id", query1.index)
+                    .attr("class", "userQuery")
+                    .style("display", "inline-block")
+                    .style("padding-left", "5px");
+
+                q.append("div")
+                    .style("width", "auto")
+                    .style("padding-left", "100px")
+                    .style("padding-right", "2px")
+                    .text("X")
+                    .style("font-size", "12px")
+                    .style("display", "inline-block")
+                    .style("background-color", "#222")
+                    .style("color", "#FFF")
+                    .on("click", function () {
+
+                        d3.select("#" + _self.parentId).select("header")
+                            .select(".userQuery").remove();
+
+                        clearQuery(query1);
+                    });
+
+                q.append("div")
+                    .style("width", "auto")
+                    .style("padding-right", "5px")
+                    .text("IDs")
+                    .style("font-size", "12px")
+                    .style("display", "inline-block")
+                    .style("background-color", "#AAA");
             }
 
             // Reset the style of the not selected dots
@@ -168,7 +206,9 @@ Map.prototype.updateVisualization = function (data, flag) {
                     "not_possible": false,
                     "possible": false
                 })
-                .attr("r", "3px");
+                .attr("r", function (d) {
+                    return (2 + Math.pow(d["value"], 0.5)) + "px";
+                });
 
         };
 
@@ -218,7 +258,7 @@ Map.prototype.updateVisualization = function (data, flag) {
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
             .attr("r", function (d) {
-                return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
+                return (2 + Math.pow(d["value"], 0.5)) + "px";
             });
 
         _self.lasso.items(d3.selectAll("circle"));
@@ -274,7 +314,7 @@ Map.prototype.updateVisualization = function (data, flag) {
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
             .attr("r", function (d) {
-                return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
+                return (2 + Math.pow(d["value"], 0.5)) + "px";
             });
 
         crimeSpots.attr("cx", function (d, i) {
@@ -308,7 +348,7 @@ Map.prototype.updateVisualization = function (data, flag) {
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "1px")
             .attr("r", function (d) {
-                return (2 + Math.pow(d[_self.cols[2]], 0.5)) + "px";
+                return (2 + Math.pow(d["value"], 0.5)) + "px";
             });
 
 

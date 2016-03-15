@@ -151,7 +151,7 @@ TimeChart.prototype.updateVisualization = function (data) {
             })
             .y0(_self.height)
             .y1(function (d) {
-                return _self.y(d[_self.cols[1]]);
+                return _self.y(d["value"]);
             });
 
         x.domain(d3.extent(_self.targetData, function (d) {
@@ -159,7 +159,7 @@ TimeChart.prototype.updateVisualization = function (data) {
         }));
 
         y.domain(d3.extent(_self.targetData, function (d) {
-            return d[_self.cols[1]];
+            return d["value"];
         }));
 
         _self.svg.append("g")
@@ -216,7 +216,7 @@ TimeChart.prototype.updateVisualization = function (data) {
         });
 
         _self.y.domain(d3.extent(_self.targetData, function (d) {
-            return d[_self.cols[1]];
+            return d["value"];
         }));
 
         _self.yAxis.scale(_self.y);

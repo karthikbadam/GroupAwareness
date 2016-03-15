@@ -80,55 +80,128 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
     _self.tempData = _self.userData[user] = data;
     _self.userClusters[user] = clusters;
 
-    for (var i = 0; i < _self.tempData.length; i++) {
-
-        var xValue = _self.tempData[i]["_id"][_self.cols[0]];
-
-        if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
-            xValue = new Date(xValue);
-        }
-
-        if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
-            xValue = _self.parseTime(xValue);
-        }
-
-        var yValue = _self.tempData[i]["_id"][_self.cols[1]];
-
-        if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
-            yValue = new Date(yValue);
-        }
-
-        if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
-            yValue = _self.parseTime(yValue);
-        }
-
-        _self.tempData[i].x = _self.x(xValue);
-        _self.tempData[i].y = _self.y(yValue);
-
-    }
-
-    var customHull = d3.geom.hull();
-    customHull.x(function (d) {
-        return d.x;
-    });
-    customHull.y(function (d) {
-        return d.y;
-    });
-
     _self.svg.selectAll(".hull" + user).remove();
 
-    var hull = _self.hull = _self.svg.append("path").attr("class", "hull" + user);
 
-    _self.hull.datum(customHull(_self.tempData)).attr("d", function (d) {
-            console.log(d);
-            return "M" + d.map(function (n) {
-                return [n.x, n.y]
-            }).join("L") + "Z";
-        }).style("fill", colorscale(user))
-        .style("fill-opacity", 0.25)
-        .style("stroke-width", "2px")
-        .style("stroke-opacity", 0.25)
-        .style("stroke", colorscale(user));
+    clusters.forEach(function (cluster) {
+        _self.currentClusterData = cluster["data"];
+
+        for (var i = 0; i < _self.currentClusterData.length; i++) {
+
+            var xValue = _self.currentClusterData[i][_self.cols[0]];
+
+            if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+                xValue = new Date(xValue);
+            }
+
+            if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+                xValue = _self.parseTime(xValue);
+            }
+
+            var yValue = _self.currentClusterData[i][_self.cols[1]];
+
+            if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+                yValue = new Date(yValue);
+            }
+
+            if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+                yValue = _self.parseTime(yValue);
+            }
+
+            _self.currentClusterData[i].x = _self.x(xValue);
+            _self.currentClusterData[i].y = _self.y(yValue);
+
+        }
+
+        var customHull = d3.geom.hull();
+        customHull.x(function (d) {
+            return d.x;
+        });
+        customHull.y(function (d) {
+            return d.y;
+        });
+
+        var hull = _self.hull = _self.svg.append("path").attr("class", "hull" + user);
+
+        _self.hull.datum(customHull(_self.currentClusterData))
+            .attr("d", function (d) {
+                console.log(d);
+
+                if (d.length == 0) {
+                    _self.svg.append("rect")
+                        .attr("class", "hull" + user)
+                        .attr("width", 10)
+                        .attr("height", 10)
+                        .attr("x", _self.currentClusterData[0].x - 5)
+                        .attr("y", _self.currentClusterData[0].y - 5)
+                        .attr("fill", colorscale(user))
+                        .style("fill-opacity", 0.2)
+                        .style("stroke-width", "1px")
+                        .style("stroke-opacity", 0.2)
+                        .style("stroke-linejoin", "round")
+                        .style("stroke-alignment", "outer")
+                        .style("stroke", colorscale(user));
+                }
+
+                if (d.length == 2) {
+                    if (d[0].x == d[1].x && d[0].y == d[1].y) {
+
+                        _self.svg.append("rect")
+                            .attr("class", "hull" + user)
+                            .attr("width", 10)
+                            .attr("height", 10)
+                            .attr("x", d[0].x - 5)
+                            .attr("y", d[0].y - 5)
+                            .style("fill", colorscale(user))
+                            .style("fill-opacity", 0.2)
+                            .style("stroke-width", "1px")
+                            .style("stroke-opacity", 0.2)
+                            .style("stroke-linejoin", "round")
+                            .style("stroke-alignment", "outer")
+                            .style("stroke", colorscale(user));
+
+                    } else {
+
+                        var newD = [];
+                        newD.push({
+                            x: d[0].x + 5,
+                            y: d[0].y + 5
+                        });
+                        newD.push({
+                            x: d[0].x - 5,
+                            y: d[0].y + 5
+                        });
+
+                        newD.push({
+                            x: d[0].x - 5,
+                            y: d[0].y - 5
+                        });
+                        newD.push({
+                            x: d[0].x + 5,
+                            y: d[0].y - 5
+                        });
+
+                        return "M" + newD.map(function (n, i) {
+                            return [n.x, n.y];
+                        }).join("L") + "Z";
+                    }
+
+                }
+
+                return "M" + d.map(function (n) {
+                    return [n.x, n.y]
+                }).join("L") + "Z";
+
+            })
+            .style("fill", colorscale(user))
+            .style("fill-opacity", 0.2)
+            .style("stroke-width", "1px")
+            .style("stroke-opacity", 0.2)
+            .style("stroke-linejoin", "round")
+            .style("stroke-alignment", "outer")
+            .style("stroke", colorscale(user));
+
+    });
 
 }
 
@@ -290,7 +363,7 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
     _self.yAxis = d3.svg.axis()
         .scale(_self.y)
         .orient("left");
-    
+
     var FONTWIDTH = 6;
 
     if (_self.x.domain().length > _self.height / FONTWIDTH) {
@@ -342,7 +415,7 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
         .domain(d3.extent(data, function (p) {
             return p["value"];
         }))
-        .range([5, 10]);
+        .range([2, 10]);
 
     var dots = _self.svg.selectAll(".dot")
         .data(data);
@@ -381,7 +454,7 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
             }
         })
         .style("fill-opacity", function (d) {
-            return 0.5;
+            return 0.1;
         });
 
     dots.exit().remove();
@@ -417,7 +490,7 @@ ScatterPlot.prototype.updateDimensions = function (cols) {
             }
         })
         .style("fill-opacity", function (d) {
-            return 0.5;
+            return 0.1;
         });
 
     var users = Object.keys(_self.userData);
@@ -597,7 +670,7 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
         .domain(d3.extent(data, function (p) {
             return p["value"];
         }))
-        .range([5, 10]);
+        .range([2, 10]);
 
     var dots = _self.svg.selectAll(".dot")
         .data(data);
@@ -636,6 +709,6 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
             }
         })
         .style("fill-opacity", function (d) {
-            return 0.5;
+            return 0.1;
         });
 }
