@@ -214,16 +214,20 @@ Bar.prototype.updateVisualization = function (data, rawData) {
         left: 50
     }
 
-    _self.cols = [_self.cols[0]];
-
     _self.width = _self.optionsWidth - _self.margin.left - _self.margin.right;
 
     _self.actualheight = _self.optionsHeight - _self.margin.top - _self.margin.bottom;
 
     d3.select("#" + _self.parentId).style("overflow", "hidden");
 
-    if (!_self.svg || _self.svg.select("rect").empty() ||
-        !d3.select("#" + _self.parentId + "scatter").empty()) {
+    if (!d3.select("#" + _self.parentId + "scatter").empty()) {
+        _self.draw2D();
+        return;
+    }
+
+    if (!_self.svg || _self.svg.select("rect").empty()) {
+
+        _self.cols = [_self.cols[0]];
 
         d3.select("#" + _self.parentId).selectAll("#" + _self.parentId + "div").remove();
         d3.select("#" + _self.parentId).selectAll("#title").remove();
@@ -464,6 +468,10 @@ Bar.prototype.draw1D = function () {
 
     var _self = this;
 
+    _self.cols = [_self.cols[0]];
+
+    d3.select("#" + _self.parentId).selectAll("#" + _self.parentId + "div").remove();
+
     _self.updateVisualization(_self.targetData, _self.rawData);
 
 }
@@ -472,15 +480,13 @@ Bar.prototype.draw2D = function () {
 
     var _self = this;
 
-    d3.select("#" + _self.parentId).selectAll("#" + _self.parentId + "div").remove();
-
     var data = processData(_self.rawData, _self.cols[0], _self.cols[1]);
 
     _self.margin = {
-        top: 50,
+        top: 70,
         right: 10,
         bottom: 30,
-        left: 80
+        left: 100
     };
 
     _self.width = _self.optionsWidth - _self.margin.left - _self.margin.right;
@@ -489,193 +495,282 @@ Bar.prototype.draw2D = function () {
 
     _self.height = _self.actualheight;
 
-    d3.select("#" + _self.parentId).selectAll("#title").remove();
+    if (d3.select("#" + _self.parentId + "scatter").empty()) {
 
+        d3.select("#" + _self.parentId).selectAll("#" + _self.parentId + "div").remove();
 
-    d3.select("#" + _self.parentId).select("header")
-        .style("display", "block")
-        .append("div")
-        .attr("id", "title")
-        .style("width", "auto")
-        .style("padding-left", "5px")
-        .text(_self.cols[0] + " by " + _self.cols[1])
-        .style("font-size", "12px")
-        .style("display", "inline-block");
+        d3.select("#" + _self.parentId).selectAll("#title").remove();
 
-    _self.svg = d3.select("#" + _self.parentId).append("div")
-        .style("overflow", "scroll")
-        .attr("id", _self.parentId + "div")
-        .style("width", _self.width + _self.margin.left + _self.margin.right)
-        .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom)
-        .append("svg")
-        .attr("id", _self.parentId + "scatter")
-        .attr("width", _self.width + _self.margin.left + _self.margin.right)
-        .attr("height", _self.actualheight + _self.margin.top + _self.margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + _self.margin.left + "," +
-            _self.margin.top + ")");
+        d3.select("#" + _self.parentId).select("header")
+            .style("display", "block")
+            .append("div")
+            .attr("id", "title")
+            .style("width", "auto")
+            .style("padding-left", "5px")
+            .text(_self.cols[0] + " by " + _self.cols[1])
+            .style("font-size", "12px")
+            .style("display", "inline-block");
 
-    for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
 
-        var d = _self.cols[i];
+            var d = _self.cols[i];
 
-        if (i == 0) {
+            if (i == 0) {
 
-            _self.y = d3.scale.ordinal()
-                .domain(data.map(function (p) {
-                    return p["key"][d];
-                }).sort())
-                .rangePoints([_self.height, 0]);
-
-
-        } else {
-
-
-            if (isNumeric[d]) {
-
-                _self.x = d3.scale.linear()
-                    .domain(d3.extent(data, function (p) {
+                _self.y = d3.scale.ordinal()
+                    .domain(data.map(function (p) {
                         return p["key"][d];
-                    }))
-                    .range([0, _self.width]);
-
-
-            } else if (d.toLowerCase().indexOf("date") > 0) {
-
-                _self.x = d3.time.scale()
-                    .domain(d3.extent(data, function (p) {
-                        return new Date(p["key"][d]);
-                    }))
-                    .range([0, _self.width]);
-
-            } else if (d.toLowerCase().indexOf("time") > 0) {
-
-                _self.x = d3.time.scale()
-                    .domain(d3.extent(data, function (p) {
-                        return _self.parseTime(p["key"][d]);
-                    }))
-                    .range([0, _self.width]);
+                    }).sort())
+                    .rangePoints([_self.height, 0]);
 
 
             } else {
 
-                _self.x = d3.scale.ordinal()
-                    .domain(data.map(function (p) {
-                        return p["key"][d];
-                    }).sort())
-                    .rangePoints([0, _self.width]);
+
+                if (isNumeric[d]) {
+
+                    _self.x = d3.scale.linear()
+                        .domain(d3.extent(data, function (p) {
+                            return p["key"][d];
+                        }))
+                        .range([0, _self.width]);
+
+
+                } else if (d.toLowerCase().indexOf("date") > 0) {
+
+                    _self.x = d3.time.scale()
+                        .domain(d3.extent(data, function (p) {
+                            return new Date(p["key"][d]);
+                        }))
+                        .range([0, _self.width]);
+
+                } else if (d.toLowerCase().indexOf("time") > 0) {
+
+                    _self.x = d3.time.scale()
+                        .domain(d3.extent(data, function (p) {
+                            return _self.parseTime(p["key"][d]);
+                        }))
+                        .range([0, _self.width]);
+
+
+                } else {
+
+                    _self.x = d3.scale.ordinal()
+                        .domain(data.map(function (p) {
+                            return p["key"][d];
+                        }).sort())
+                        .rangePoints([0, _self.width]);
+                }
             }
         }
+
+        _self.color = d3.scale.category10();
+
+        
+
+        if (_self.y.domain().length * 10 > _self.actualheight) {
+            
+            _self.height = _self.y.domain().length * 10 + _self.margin.top + _self.margin.bottom;
+            
+        }
+        
+        _self.svg = d3.select("#" + _self.parentId).append("div")
+            .style("overflow", "scroll")
+            .attr("id", _self.parentId + "div")
+            .style("width", _self.width + _self.margin.left + _self.margin.right)
+            .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom)
+            .append("svg")
+            .attr("id", _self.parentId + "scatter")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+            .attr("height",  _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + _self.margin.left + "," +
+                _self.margin.top + ")");
+
+        _self.y.rangePoints([_self.height, 0]);
+        
+        _self.xAxis = d3.svg.axis()
+            .scale(_self.x)
+            .orient("top");
+
+        _self.yAxis = d3.svg.axis()
+            .scale(_self.y)
+            .orient("left");
+        
+        var FONTWIDTH = 10;
+
+        if (_self.x.domain().length > _self.width / FONTWIDTH) {
+
+            var skip = Math.round(1 / (_self.width / (FONTWIDTH * _self.x.domain().length)));
+
+            _self.xAxis.tickValues(_self.x.domain()
+                .filter(function (d, i) {
+                    return !(i % skip);
+                }));
+
+        }
+//
+//        if (_self.y.domain().length > _self.height / FONTWIDTH) {
+//
+//            var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.y.domain().length)));
+//
+//            _self.yAxis.tickValues(_self.y.domain()
+//                .filter(function (d, i) {
+//                    return !(i % skip);
+//                }));
+//        }
+        
+        _self.svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0,0)")
+            .call(_self.xAxis);
+
+        _self.svg.append("g")
+            .attr("class", "y axis")
+            .call(_self.yAxis)
+            .append("text")
+            .attr("class", "label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("x", -6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .style("font-size", "14px")
+            .text(_self.cols[0]);
+
+        _self.svg.select(".x.axis")
+            .selectAll("text")
+            .attr("y", 0)
+            .attr("x", 9)
+            .attr("dy", ".35em")
+            .attr("transform", "rotate(-90)")
+            .style("text-anchor", "start");
+
+        _self.svg.select(".x.axis")
+            .append("text")
+            .attr("class", "label")
+            .attr("x", _self.width)
+            .attr("y", 15)
+            .style("text-anchor", "end")
+            .style("font-size", "14px")
+            .text(_self.cols[1]);
+
+        _self.radius = d3.scale.linear()
+            .domain(d3.extent(data, function (p) {
+                return p["value"];
+            }))
+            .range([2, 10]);
+
+        var dots = _self.svg.selectAll(".dot")
+            .data(data);
+
+        dots.enter().append("circle")
+            .attr("class", "dot")
+            .attr("r", function (d) {
+                return _self.radius(d["value"]);
+            })
+            .attr("cx", function (d) {
+                if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+                    return _self.x(new Date(d["key"][_self.cols[1]]));
+                }
+
+                if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+                    return _self.x(_self.parseTime(d["key"][_self.cols[1]]));
+                }
+                return _self.x(d["key"][_self.cols[1]]);
+            })
+            .attr("cy", function (d) {
+                if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+                    return _self.y(new Date(d["key"][_self.cols[0]]));
+                }
+
+                if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+                    return _self.y(_self.parseTime(d["key"][_self.cols[0]]));
+                }
+                return _self.y(d["key"][_self.cols[0]]);
+            })
+            .style("fill", function (d) {
+                return "#4292c6";
+            })
+            .style("fill-opacity", function (d) {
+                return 0.3;
+            });
+
+    } else {
+
+        _self.radius = d3.scale.linear()
+            .domain(d3.extent(data, function (p) {
+                return p["value"];
+            }))
+            .range([2, 10]);
+
+        var dots = _self.svg.selectAll(".dot")
+            .data(data);
+
+        dots.exit().remove();
+
+        dots.enter().append("circle")
+            .attr("class", "dot")
+            .attr("r", function (d) {
+                return _self.radius(d["value"]);
+            })
+            .attr("cx", function (d) {
+                if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+                    return _self.x(new Date(d["key"][_self.cols[1]]));
+                }
+
+                if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+                    return _self.x(_self.parseTime(d["key"][_self.cols[1]]));
+                }
+                return _self.x(d["key"][_self.cols[1]]);
+            })
+            .attr("cy", function (d) {
+                if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+                    return _self.y(new Date(d["key"][_self.cols[0]]));
+                }
+
+                if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+                    return _self.y(_self.parseTime(d["key"][_self.cols[0]]));
+                }
+                return _self.y(d["key"][_self.cols[0]]);
+            })
+            .style("fill", function (d) {
+                return "#4292c6";
+            })
+            .style("fill-opacity", function (d) {
+                return 0.3;
+            });
+
+        dots.attr("r", function (d) {
+                return _self.radius(d["value"]);
+            })
+            .attr("cx", function (d) {
+                if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
+                    return _self.x(new Date(d["key"][_self.cols[1]]));
+                }
+
+                if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
+                    return _self.x(_self.parseTime(d["key"][_self.cols[1]]));
+                }
+                return _self.x(d["key"][_self.cols[1]]);
+            })
+            .attr("cy", function (d) {
+                if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
+                    return _self.y(new Date(d["key"][_self.cols[0]]));
+                }
+
+                if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
+                    return _self.y(_self.parseTime(d["key"][_self.cols[0]]));
+                }
+                return _self.y(d["key"][_self.cols[0]]);
+            })
+            .style("fill", function (d) {
+                return "#4292c6";
+            })
+            .style("fill-opacity", function (d) {
+                return 0.3;
+            });
+
     }
-
-    _self.color = d3.scale.category10();
-
-    _self.xAxis = d3.svg.axis()
-        .scale(_self.x)
-        .orient("top");
-
-    _self.yAxis = d3.svg.axis()
-        .scale(_self.y)
-        .orient("left");
-
-    var FONTWIDTH = 10;
-
-    if (_self.x.domain().length > _self.height / FONTWIDTH) {
-
-        var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.x.domain().length)));
-
-        _self.xAxis.tickValues(_self.x.domain()
-            .filter(function (d, i) {
-                return !(i % skip);
-            }));
-
-    }
-
-    if (_self.y.domain().length > _self.height / FONTWIDTH) {
-
-        var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.y.domain().length)));
-
-        _self.yAxis.tickValues(_self.y.domain()
-            .filter(function (d, i) {
-                return !(i % skip);
-            }));
-    }
-
-    _self.svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0,0)")
-        .call(_self.xAxis);
-
-    _self.svg.append("g")
-        .attr("class", "y axis")
-        .call(_self.yAxis)
-        .append("text")
-        .attr("class", "label")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("x", -6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .style("font-size", "14px")
-        .text(_self.cols[0]);
-
-    _self.svg.select(".x.axis")
-        .selectAll("text")
-        .attr("y", 0)
-        .attr("x", 9)
-        .attr("dy", ".35em")
-        .attr("transform", "rotate(-90)")
-        .style("text-anchor", "start");
-
-    _self.svg.select(".x.axis")
-        .append("text")
-        .attr("class", "label")
-        .attr("x", _self.width)
-        .attr("y", 15)
-        .style("text-anchor", "end")
-        .style("font-size", "14px")
-        .text(_self.cols[1]);
-
-    _self.radius = d3.scale.linear()
-        .domain(d3.extent(data, function (p) {
-            return p["value"];
-        }))
-        .range([2, 10]);
-
-    var dots = _self.svg.selectAll(".dot")
-        .data(data);
-
-    dots.enter().append("circle")
-        .attr("id", "scatter")
-        .attr("class", "dot")
-        .attr("r", function (d) {
-            return _self.radius(d["value"]);
-        })
-        .attr("cx", function (d) {
-            if (_self.cols[1].toLowerCase().indexOf("date") > 0) {
-                return _self.x(new Date(d["key"][_self.cols[1]]));
-            }
-
-            if (_self.cols[1].toLowerCase().indexOf("time") > 0) {
-                return _self.x(_self.parseTime(d["key"][_self.cols[1]]));
-            }
-            return _self.x(d["key"][_self.cols[1]]);
-        })
-        .attr("cy", function (d) {
-            if (_self.cols[0].toLowerCase().indexOf("date") > 0) {
-                return _self.y(new Date(d["key"][_self.cols[0]]));
-            }
-
-            if (_self.cols[0].toLowerCase().indexOf("time") > 0) {
-                return _self.y(_self.parseTime(d["key"][_self.cols[0]]));
-            }
-            return _self.y(d["key"][_self.cols[0]]);
-        })
-        .style("fill", function (d) {
-            return "#4292c6";
-        })
-        .style("fill-opacity", function (d) {
-            return 0.3;
-        });
 
 }

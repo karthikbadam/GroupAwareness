@@ -48,9 +48,6 @@ crimeMeta["neighborhood"] = "Neighborhood";
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
-//var awarenessDimensions = [gross, budget, tomatoRating, imdbvotes, sales];
-var awarenessDimensions = ["District", "Description", "Weapon", "Post"];
-
 var width = 0;
 var height = 0;
 var tabHeight = 30;
@@ -62,9 +59,14 @@ var colorscale = d3.scale.category10();
 // awareness visualization
 var awarenessViz;
 var awarenessType = 2;
-//  1 for parallel coordinates,  2 for ScatterPlot, 3 for Barycentric, 4 for radar plot, 5 for user-centered barymap with features
+// 1 for parallel coordinates,  2 for ScatterPlot, 3 for Barycentric, 
+// 4 for radar plot, 5 for user-centered barymap with features
 var parallelAwarenessViz = null;
 var scatterplotAwarenessViz = null;
+
+//var awarenessDimensions = [gross, budget, tomatoRating, imdbvotes, sales];
+var pAwarenessDimensions = ["CrimeDate", "CrimeTime", "District", "Description", "Weapon", "Post"];
+var sAwarenessDimensions = ["CrimeDate", "Description"];
 
 Array.prototype.compare = function (testArr) {
     if (this.length != testArr.length) return false;
@@ -215,7 +217,7 @@ $(document).ready(function () {
 
                 parallelAwarenessViz = new ParallelCoord({
                     data: awarenessViz.defaultData,
-                    cols: awarenessDimensions
+                    cols: pAwarenessDimensions
                 });
 
                 parallelAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultData);
@@ -224,7 +226,7 @@ $(document).ready(function () {
 
             awarenessType = 1;
 
-            parallelAwarenessViz.updateDimensions(awarenessDimensions);
+            parallelAwarenessViz.updateDimensions(pAwarenessDimensions);
 
             var users = Object.keys(awarenessViz.userData);
 
@@ -249,7 +251,7 @@ $(document).ready(function () {
 
                 scatterplotAwarenessViz = new ScatterPlot({
                     data: awarenessViz.defaultData,
-                    cols: awarenessDimensions
+                    cols: sAwarenessDimensions
                 });
 
                 scatterplotAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultData);
@@ -258,7 +260,7 @@ $(document).ready(function () {
 
             awarenessType = 2;
 
-            scatterplotAwarenessViz.updateDimensions(awarenessDimensions);
+            scatterplotAwarenessViz.updateDimensions(sAwarenessDimensions);
 
             var users = Object.keys(awarenessViz.userData);
 
@@ -319,8 +321,20 @@ $(document).ready(function () {
         //check the ones on awarenessDimensions
         d3.selectAll('.checkbox-input').property('checked', false);
 
-        awarenessDimensions.forEach(function (d, i) {
 
+        var awarenessDimensions;
+
+        if (awarenessViz.type == 1) {
+
+            awarenessDimensions = pAwarenessDimensions;
+
+        } else if (awarenessViz.type == 2) {
+
+            awarenessDimensions = sAwarenessDimensions;
+
+        }
+
+        awarenessDimensions.forEach(function (d, i) {
 
             if (awarenessType == 2) {
 
@@ -335,10 +349,13 @@ $(document).ready(function () {
         });
 
         dialog.showModal();
+
     });
 
     dialog.querySelector('.close').addEventListener('click', function () {
+
         dialog.close();
+
     });
 
     dialog.querySelector('#dimensionsChanged').addEventListener('click', function () {
@@ -357,15 +374,31 @@ $(document).ready(function () {
 
         });
 
-        if (!dimArray.sort().compare(awarenessDimensions.sort())) {
-            
-            awarenessDimensions = dimArray;
-            
-            console.log(dimArray);
+        var awarenessDimensions;
 
-            awarenessViz.updateDimensions(awarenessDimensions);
+        if (awarenessViz.type == 1) {
+
+            awarenessDimensions = pAwarenessDimensions;
+
+        } else if (awarenessViz.type == 2) {
+
+            awarenessDimensions = sAwarenessDimensions;
+
         }
 
+        if (!dimArray.sort().compare(awarenessDimensions.sort())) {
+
+            if (awarenessViz.type == 1) {
+                pAwarenessDimensions = dimArray;
+                awarenessViz.updateDimensions(pAwarenessDimensions);
+            }
+
+            if (awarenessViz.type == 2) {
+                sAwarenessDimensions = dimArray.slice(0, 2);
+                awarenessViz.updateDimensions(sAwarenessDimensions);
+            }
+
+        }
 
         dialog.close();
     });
@@ -424,7 +457,7 @@ function getDataFromQuery(queryList) {
 
             parallelAwarenessViz = new ParallelCoord({
                 data: data,
-                cols: awarenessDimensions
+                cols: pAwarenessDimensions
             });
 
             awarenessViz = parallelAwarenessViz;
@@ -434,7 +467,7 @@ function getDataFromQuery(queryList) {
         case 2:
             scatterplotAwarenessViz = new ScatterPlot({
                 data: data,
-                cols: awarenessDimensions
+                cols: sAwarenessDimensions
             });
 
             awarenessViz = scatterplotAwarenessViz;

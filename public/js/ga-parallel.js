@@ -2,6 +2,8 @@ function ParallelCoord(options) {
 
     var _self = this;
 
+    _self.type = 1;
+    
     _self.data = options.data;
 
     _self.cols = options.cols;

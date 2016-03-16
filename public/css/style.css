@@ -145,7 +145,8 @@ brush .extent {
     line-height: 20px;
     margin: 3px;
     font-size: 1em;
-    background-color: #2196F3; 
+    background-color: white;
+    color: black;
     float: right;
 }
 
@@ -168,3 +169,4 @@ brush .extent {
 .mdl-button--fab.mdl-button--colored {
     color: #fff;
 }
+

@@ -2,6 +2,8 @@ function ScatterPlot(options) {
 
     var _self = this;
 
+    _self.type = 2;
+    
     _self.data = options.data;
 
     _self.cols = options.cols;
@@ -64,12 +66,8 @@ ScatterPlot.prototype.clusterAxis = function (data) {
 
             var datumValue = _self.data[i]["_id"][d];
 
-
         }
-
     });
-
-
 }
 
 
