@@ -100,6 +100,9 @@ function Bar(options) {
             var newDimension = dimArray[0];
 
             if (_self.cols.indexOf(newDimension) < 0) {
+                
+                d3.select("#" + _self.parentId).selectAll("#" + _self.parentId + "div").remove();
+
                 if (_self.cols.length == 1) {
                     _self.cols.push(newDimension);
                     _self.draw2D();
@@ -566,14 +569,14 @@ Bar.prototype.draw2D = function () {
 
         _self.color = d3.scale.category10();
 
-        
+
 
         if (_self.y.domain().length * 10 > _self.actualheight) {
-            
+
             _self.height = _self.y.domain().length * 10 + _self.margin.top + _self.margin.bottom;
-            
+
         }
-        
+
         _self.svg = d3.select("#" + _self.parentId).append("div")
             .style("overflow", "scroll")
             .attr("id", _self.parentId + "div")
@@ -582,13 +585,13 @@ Bar.prototype.draw2D = function () {
             .append("svg")
             .attr("id", _self.parentId + "scatter")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
-            .attr("height",  _self.height + _self.margin.top + _self.margin.bottom)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + _self.margin.left + "," +
                 _self.margin.top + ")");
 
         _self.y.rangePoints([_self.height, 0]);
-        
+
         _self.xAxis = d3.svg.axis()
             .scale(_self.x)
             .orient("top");
@@ -596,7 +599,7 @@ Bar.prototype.draw2D = function () {
         _self.yAxis = d3.svg.axis()
             .scale(_self.y)
             .orient("left");
-        
+
         var FONTWIDTH = 10;
 
         if (_self.x.domain().length > _self.width / FONTWIDTH) {
@@ -609,17 +612,7 @@ Bar.prototype.draw2D = function () {
                 }));
 
         }
-//
-//        if (_self.y.domain().length > _self.height / FONTWIDTH) {
-//
-//            var skip = Math.round(1 / (_self.height / (FONTWIDTH * _self.y.domain().length)));
-//
-//            _self.yAxis.tickValues(_self.y.domain()
-//                .filter(function (d, i) {
-//                    return !(i % skip);
-//                }));
-//        }
-        
+
         _self.svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0,0)")

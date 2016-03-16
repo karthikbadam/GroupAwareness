@@ -392,14 +392,14 @@ function processData(data, col1, col2) {
 
         var key = d["_id"][col1];
 
-        // if has dates
-        if (col1.indexOf("Date") > -1) {
-            var cdate = new Date(d["_id"][col1]);
-            var cyear = cdate.getFullYear();
-            var cmonth = month_names_short[cdate.getMonth()];
-
-            key = cmonth + "/" + cyear;
-        }
+//        // if has dates
+//        if (col1.indexOf("Date") > -1) {
+//            var cdate = new Date(d["_id"][col1]);
+//            var cyear = cdate.getFullYear();
+//            var cmonth = month_names_short[cdate.getMonth()];
+//
+//            key = cmonth + "/" + cyear;
+//        }
 
         if (col2) {
             tempkey = key;

@@ -121,8 +121,7 @@ ParallelCoord.prototype.createUser = function (data, user, clusters) {
         })
         .style("fill", colorscale(user))
         .style("fill-opacity", function (d, i) {
-            return 0.1;
-            return clusters[i].length;
+            return clusters[i]["opacity"];
         })
         .style("stroke", colorscale(user))
         .style("stroke-width", "1px")
@@ -387,11 +386,11 @@ ParallelCoord.prototype.createViz = function (clusters, data) {
         })
         .y1(function (d) {
             if (d["key"].toLowerCase().indexOf("date") > 0) {
-                return _self.y[d["key"]](new Date(d["min"]));
+                return _self.y[d["key"]](new Date(d["max"]));
             }
 
             if (d["key"].toLowerCase().indexOf("time") > 0) {
-                return _self.y[d["key"]](_self.parseTime(d["min"]));
+                return _self.y[d["key"]](_self.parseTime(d["max"]));
             }
 
             return _self.y[d["key"]](d["max"]);

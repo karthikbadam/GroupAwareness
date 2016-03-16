@@ -133,7 +133,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
                         .attr("x", _self.currentClusterData[0].x - 5)
                         .attr("y", _self.currentClusterData[0].y - 5)
                         .attr("fill", colorscale(user))
-                        .style("fill-opacity", 0.2)
+                        .style("fill-opacity", cluster["opacity"])
                         .style("stroke-width", "1px")
                         .style("stroke-opacity", 0.2)
                         .style("stroke-linejoin", "round")
@@ -151,7 +151,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
                             .attr("x", d[0].x - 5)
                             .attr("y", d[0].y - 5)
                             .style("fill", colorscale(user))
-                            .style("fill-opacity", 0.2)
+                            .style("fill-opacity", cluster["opacity"])
                             .style("stroke-width", "1px")
                             .style("stroke-opacity", 0.2)
                             .style("stroke-linejoin", "round")
@@ -192,7 +192,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
 
             })
             .style("fill", colorscale(user))
-            .style("fill-opacity", 0.2)
+            .style("fill-opacity", cluster["opacity"])
             .style("stroke-width", "1px")
             .style("stroke-opacity", 0.2)
             .style("stroke-linejoin", "round")
@@ -211,14 +211,14 @@ function processData(data, col1, col2) {
 
         var key = d["_id"][col1];
 
-        // if has dates
-        if (col1.indexOf("Date") > -1) {
-            var cdate = new Date(d["_id"][col1]);
-            var cyear = cdate.getFullYear();
-            var cmonth = month_names_short[cdate.getMonth()];
-
-            key = cmonth + "/" + cyear;
-        }
+//        // if has dates
+//        if (col1.indexOf("Date") > -1) {
+//            var cdate = new Date(d["_id"][col1]);
+//            var cyear = cdate.getFullYear();
+//            var cmonth = month_names_short[cdate.getMonth()];
+//
+//            key = cmonth + "/" + cyear;
+//        }
 
         if (col2) {
             tempkey = key;

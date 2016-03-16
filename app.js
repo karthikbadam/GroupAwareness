@@ -98,8 +98,10 @@ crimeMeta["neighborhood"] = "Neighborhood";
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
-var crimeStream = fs.createReadStream("public/data/crime.csv");
+var parseTime = d3.time.format("%H:%M:%S").parse;
+var parseTime2 = d3.time.format("%H%M").parse;
 
+var crimeStream = fs.createReadStream("public/data/crime.csv");
 
 MongoClient.connect(mongourlMovies, function (err, db) {
     assert.equal(null, err);
@@ -444,7 +446,7 @@ var reverse = {};
 var distance = function (a, b) {
     var d = 0;
     //var cols = Object.keys(a);
-    cols = ["District", "Description", "Weapon", "Post", "CrimeDate"];
+    cols = ["CrimeDate", "CrimeTime", "District", "Description", "Weapon", "Post"];
 
     for (var i = 0; i < cols.length; i++) {
 
@@ -469,6 +471,57 @@ var distance = function (a, b) {
 
                 }
 
+
+//            } else if (key.toLowerCase().indexOf("date") > 0) {
+//
+//                var extent = domain[key][1].getTime() - domain[key][0].getTime();
+//
+//                var val = Math.pow((new Date(a[key]).getTime() -
+//                    new Date(b[key]).getTime()) / extent, 2);
+//
+//                if (checkNumeric(val)) {
+//
+//                    d += val;
+//
+//                }
+//
+//            } else if (key.toLowerCase().indexOf("time") > 0) {
+//
+//                var extent = domain[key][1].getTime() - domain[key][0].getTime();
+//
+//                var timea, timeb;
+//
+//                if (a[key].indexOf(":") < 0) {
+//
+//                    timea = parseTime2(a[key]);
+//
+//                } else {
+//
+//                    timea = parseTime(a[key]);
+//                }
+//
+//                if (b[key].indexOf(":") < 0) {
+//
+//                    timeb = parseTime2(b[key]);
+//
+//                } else {
+//
+//                    timeb = parseTime(b[key]);
+//                }
+//
+//                if (timea != null && timeb != null) {
+//
+//                    var val = Math.pow((timea.getTime() -
+//                        timeb.getTime()) / extent, 2);
+//
+//
+//                    if (checkNumeric(val)) {
+//
+//                        d += val;
+//
+//                    }
+//
+//                }
 
             } else {
 
@@ -517,10 +570,27 @@ function centroid(a, input) {
 
             }
 
-
             if (isNumeric[key]) {
 
                 centroid[key] += parseFloat(datum[key]);
+
+//            } else if (key.toLowerCase().indexOf("date") > 0) {
+//
+//                centroid[key] += new Date(datum[key]).getTime();
+//
+//            } else if (key.toLowerCase().indexOf("time") > 0) {
+//
+//                if (datum[key].indexOf(":") < 0) {
+//                    
+//                    if (parseTime2(datum[key]) != null)
+//                        centroid[key] += parseTime2(datum[key]).getTime();
+//                    
+//                } else {
+//                    
+//                    if (parseTime(datum[key]) != null)
+//                        centroid[key] += parseTime(datum[key]).getTime();
+//                    
+//                }
 
             } else {
 
@@ -541,6 +611,24 @@ function centroid(a, input) {
         if (isNumeric[key]) {
 
             centroid[key] = centroid[key] / a.length;
+
+//        } else if (key.toLowerCase().indexOf("date") > 0) {
+//
+//            centroid[key] = centroid[key] / a.length;
+//
+//            var copy = new Date();
+//            copy.setTime(Math.round(centroid[key]));
+//
+//            centroid[key] = copy.toISOString();
+//
+//        } else if (key.toLowerCase().indexOf("time") > 0) {
+//
+//            centroid[key] = centroid[key] / a.length;
+//
+//            var copy = new Date();
+//            copy.setTime(Math.round(centroid[key]));
+//
+//            centroid[key] = "" + copy.getHours() + ":" + copy.getMinutes() + ":" + copy.getSeconds();
 
         } else {
 
@@ -597,7 +685,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
                 // random sampling for now
                 // 100 points at most
                 var sampled = [];
-                var fraction = 100 / data.length;
+                var fraction = 150 / data.length;
 
                 for (var i = 0; i < data.length; i++) {
 
@@ -622,6 +710,18 @@ app.get('/getCrimeClustered', function (req, res, next) {
                         domain[d] = d3.extent(data, function (p) {
                             return parseFloat(p[d]);
                         });
+
+//                    } else if (d.toLowerCase().indexOf("date") > 0) {
+//
+//                        domain[d] = d3.extent(data, function (p) {
+//                            return new Date(p[d]);
+//                        });
+//
+//                    } else if (d.toLowerCase().indexOf("time") > 0) {
+//
+//                        domain[d] = d3.extent(data, function (p) {
+//                            return parseTime(p[d]);
+//                        });
 
                     } else {
 
@@ -661,6 +761,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                     var aMin = sampled[cMeta[0]];
                     var aMax = sampled[cMeta[cMeta.length - 1]];
+                    var opacity = cMeta.length / sampled.length;
 
                     var cols = Object.keys(aMin);
 
@@ -671,7 +772,6 @@ app.get('/getCrimeClustered', function (req, res, next) {
                         cols.forEach(function (key) {
 
                             if (isNumeric[key]) {
-
 
                                 if (parseFloat(s[key]) <
                                     parseFloat(aMin[key])) {
@@ -688,6 +788,65 @@ app.get('/getCrimeClustered', function (req, res, next) {
                                 }
 
 
+//                            } else if (key.toLowerCase().indexOf("date") > 0) {
+//
+//                                if (new Date(s[key]).getTime() <
+//                                    new Date(aMin[key]).getTime()) {
+//
+//                                    aMin[key] = s[key];
+//
+//                                }
+//
+//                                if (new Date(s[key]).getTime() >
+//                                    new Date(aMax[key]).getTime()) {
+//
+//                                    aMax[key] = s[key];
+//
+//                                }
+//
+//                            } else if (key.toLowerCase().indexOf("time") > 0) {
+//
+//                                var stime, minTime, maxTime;
+//
+//                                if (s[key].indexOf(":") < 0) {
+//
+//                                    stime = parseTime2(s[key]);
+//
+//                                } else {
+//
+//                                    stime = parseTime(s[key]);
+//                                }
+//
+//                                if (aMin[key].indexOf(":") < 0) {
+//
+//                                    minTime = parseTime2(aMin[key]);
+//
+//                                } else {
+//
+//                                    minTime = parseTime(aMin[key]);
+//                                }
+//
+//                                if (aMax[key].indexOf(":") < 0) {
+//
+//                                    maxTime = parseTime2(aMax[key]);
+//
+//                                } else {
+//
+//                                    maxTime = parseTime(aMax[key]);
+//                                }
+//
+//                                if (stime!= null && minTime != null && 
+//                                    stime.getTime() < minTime.getTime()) {
+//
+//                                    aMin[key] = s[key];
+//                                }
+//
+//                                if (stime!= null && maxTime != null && 
+//                                    stime.getTime() > maxTime.getTime()) {
+//
+//                                    aMax[key] = s[key];
+//                                }
+
                             } else {
 
 
@@ -703,7 +862,6 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                                 if (sloc > maxloc) {
 
-
                                     aMax[key] = s[key];
 
                                 }
@@ -718,12 +876,15 @@ app.get('/getCrimeClustered', function (req, res, next) {
                     c["data"] = a;
                     c["min"] = aMin;
                     c["max"] = aMax;
+                    c["opacity"] = opacity;
 
                     actualClusters.push(c);
 
                 });
 
                 returnData["clusters"] = actualClusters;
+
+                returnData["query"] = qs.parse(params).data;
 
                 res.write(JSON.stringify(returnData));
 
