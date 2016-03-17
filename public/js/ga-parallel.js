@@ -69,6 +69,15 @@ ParallelCoord.prototype.clusterAxis = function (data) {
     });
 }
 
+ParallelCoord.prototype.empty = function (user) {
+    
+    var _self = this;
+
+    _self.userData[user] = [];
+    _self.userClusters[user] = [];
+    
+    _self.svg.selectAll(".foreground" + user).remove();
+}
 
 ParallelCoord.prototype.createUser = function (data, user, clusters) {
 

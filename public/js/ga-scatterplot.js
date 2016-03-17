@@ -71,6 +71,17 @@ ScatterPlot.prototype.clusterAxis = function (data) {
 }
 
 
+ScatterPlot.prototype.empty = function (user) {
+    
+    var _self = this;
+
+    _self.svg.selectAll(".hull" + user).remove();
+    
+    _self.userData[user] = [];
+    _self.userClusters[user] = [];
+    
+}
+
 ScatterPlot.prototype.createUser = function (data, user, clusters) {
 
     var _self = this;
@@ -135,7 +146,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
                         .attr("fill", colorscale(user))
                         .style("fill-opacity", cluster["opacity"])
                         .style("stroke-width", "1px")
-                        .style("stroke-opacity", 0.2)
+                        .style("stroke-opacity", 0.4)
                         .style("stroke-linejoin", "round")
                         .style("stroke-alignment", "outer")
                         .style("stroke", colorscale(user));
@@ -153,7 +164,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
                             .style("fill", colorscale(user))
                             .style("fill-opacity", cluster["opacity"])
                             .style("stroke-width", "1px")
-                            .style("stroke-opacity", 0.2)
+                            .style("stroke-opacity", 0.4)
                             .style("stroke-linejoin", "round")
                             .style("stroke-alignment", "outer")
                             .style("stroke", colorscale(user));
@@ -194,7 +205,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
             .style("fill", colorscale(user))
             .style("fill-opacity", cluster["opacity"])
             .style("stroke-width", "1px")
-            .style("stroke-opacity", 0.2)
+            .style("stroke-opacity", 0.4)
             .style("stroke-linejoin", "round")
             .style("stroke-alignment", "outer")
             .style("stroke", colorscale(user));

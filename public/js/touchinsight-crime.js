@@ -13,6 +13,8 @@ crimeMeta["neighborhood"] = "Neighborhood";
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
+var cache = {};
+
 var isNumeric = null;
 
 var queryStack = [];
@@ -247,11 +249,11 @@ $(document).ready(function () {
 
     for (var i = 0; i < numViews; i++) {
         if (i == Math.floor(numViews / 2)) {
-            gridster.add_widget('<div id = "viz' + i + '" ' + 
-                                'class="panel"><header></header></div>', 1, 2);
+            gridster.add_widget('<div id = "viz' + i + '" ' +
+                'class="panel"><header></header></div>', 1, 2);
         } else {
             gridster.add_widget('<div id = "viz' + i + '" ' +
-                                'class="panel"><header></header></div>', 1, 1);
+                'class="panel"><header></header></div>', 1, 1);
         }
     }
 
@@ -284,127 +286,146 @@ function createDelay(index) {
 
 function getDatafromQuery(queryList) {
 
-    $.ajax({
+    if ("initial" in cache && queryList == "empty") {
 
-        type: "GET",
-        url: "/getCrime",
-        data: {
-            data: queryList
-        }
+        handleDatafromQuery(cache["initial"]);
 
-    }).done(function (data) {
+    } else {
+        
+        $.ajax({
 
-        data = JSON.parse(data);
+            type: "GET",
+            url: "/getCrime",
+            data: {
+                data: queryList
+            }
 
-        console.log(data);
+        }).done(function (data) {
+            
+            handleDatafromQuery(data);
+            
+        });
+    }
 
-        if (isNumeric == null) {
+}
 
-            var allKeys = Object.keys(crimeMeta);
+function handleDatafromQuery(data) {
 
-            isNumeric = {};
+    if (!("initial" in cache)) {
+        cache["initial"] = data;
+    }
 
-            for (var i = 0; i < data.length; i++) {
+    data = JSON.parse(data);
 
-                for (var j = 0; j < allKeys.length; j++) {
+    console.log(data);
 
-                    var key = crimeMeta[allKeys[j]];
+    if (isNumeric == null) {
 
-                    var value = data[i]["_id"][key];
+        var allKeys = Object.keys(crimeMeta);
 
-                    if (value == "" || value == "NaN" || value == "undefined") {
+        isNumeric = {};
 
-                        continue;
+        for (var i = 0; i < data.length; i++) {
 
-                    } else {
+            for (var j = 0; j < allKeys.length; j++) {
 
-                        isNumeric[key] = $.isNumeric(value);
+                var key = crimeMeta[allKeys[j]];
 
-                    }
+                var value = data[i]["_id"][key];
+
+                if (value == "" || value == "NaN" || value == "undefined") {
+
+                    continue;
+
+                } else {
+
+                    isNumeric[key] = $.isNumeric(value);
+
                 }
             }
         }
+    }
 
-        visuals.forEach(function (d, i) {
+    visuals.forEach(function (d, i) {
 
-            if (d.length == 1) {
+        if (d.length == 1) {
 
-                var processed = processData(data, d[0]);
+            var processed = processData(data, d[0]);
 
-                if (visualizations[i] == null) {
+            if (visualizations[i] == null) {
 
-                    if (d[0].indexOf("Date") > -1) {
+                if (d[0].indexOf("Date") > -1) {
 
-                        visualizations[i] = new TimeChart({
-                            parentId: "viz" + i,
-                            cols: [d[0]],
-                            width: $("#viz" + i).width(),
-                            height: $("#viz" + i).height(),
-                            text: "Crime Count by " + d[0],
-                            month: true
-                        });
+                    visualizations[i] = new TimeChart({
+                        parentId: "viz" + i,
+                        cols: [d[0]],
+                        width: $("#viz" + i).width(),
+                        height: $("#viz" + i).height(),
+                        text: "Crime Count by " + d[0],
+                        month: true
+                    });
 
-                        visualizations[i].updateVisualization(processed, data);
-
-                    } else {
-
-                        visualizations[i] = new Bar({
-                            parentId: "viz" + i,
-                            cols: [d[0]],
-                            width: $("#viz" + i).width(),
-                            height: $("#viz" + i).height(),
-                            text: "Crime Count by " + d[0]
-                        });
-
-                        visualizations[i].updateVisualization(processed, data);
-
-                    }
+                    visualizations[i].updateVisualization(processed, data);
 
                 } else {
+
+                    visualizations[i] = new Bar({
+                        parentId: "viz" + i,
+                        cols: [d[0]],
+                        width: $("#viz" + i).width(),
+                        height: $("#viz" + i).height(),
+                        text: "Crime Count by " + d[0]
+                    });
 
                     visualizations[i].updateVisualization(processed, data);
 
                 }
 
+            } else {
+
+                visualizations[i].updateVisualization(processed, data);
+
+            }
+
+
+        } else {
+
+            var processed = processData(data, d[0], d[1]);
+
+            if (visualizations[i] == null) {
+
+
+                if (d[0].indexOf("Latitude") > -1) {
+
+                    visualizations[i] = new Map({
+                        parentId: "viz" + i,
+                        cols: [d[0], d[1]],
+                        width: $("#viz" + i).width(),
+                        height: $("#viz" + i).height(),
+                        text: "Crime Count by " + d[0],
+                        month: true
+                    });
+
+                    visualizations[i].updateVisualization(processed);
+                }
 
             } else {
 
-                var processed = processData(data, d[0], d[1]);
-
-                if (visualizations[i] == null) {
-
-
-                    if (d[0].indexOf("Latitude") > -1) {
-
-                        visualizations[i] = new Map({
-                            parentId: "viz" + i,
-                            cols: [d[0], d[1]],
-                            width: $("#viz" + i).width(),
-                            height: $("#viz" + i).height(),
-                            text: "Crime Count by " + d[0],
-                            month: true
-                        });
-
-                        visualizations[i].updateVisualization(processed);
-                    }
-
-                } else {
-
-                    visualizations[i].updateVisualization(processed);
-
-                }
+                visualizations[i].updateVisualization(processed);
 
             }
-        });
 
+        }
     });
 
 }
 
+
+
 function processData(data, col1, col2) {
 
     var newData = {};
-    
+
     var keyIDs = {};
 
     data.forEach(function (d) {
@@ -432,15 +453,15 @@ function processData(data, col1, col2) {
 
             //count -- can be automated!!!
             newData[key] ++;
-            
+
             keyIDs[key].push(d["_id"]["id"]);
 
         } else {
 
             newData[key] = 1;
-            
+
             keyIDs[key] = [];
-            
+
             keyIDs[key].push(d["_id"]["id"]);
         }
     });
@@ -457,9 +478,9 @@ function processData(data, col1, col2) {
         }
         datum["value"] = newData[k];
         datum["ids"] = keyIDs[k];
-        
+
         returnData.push(datum);
-        
+
     });
 
 

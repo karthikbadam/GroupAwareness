@@ -16,7 +16,6 @@ function Sync(options) {
 
                 options.callback(data.query,
                     data.time, data.deviceType, data.deviceId);
-
             }
 
         });

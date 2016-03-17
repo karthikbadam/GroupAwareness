@@ -10,6 +10,8 @@ var runningTime = "Running_Time_min";
 var tomatoRating = "Rotten_Tomatoes_Rating";
 var imdbvotes = "IMDB_Votes";
 
+var cache = {};
+
 //polychrome
 var polychrome;
 
@@ -55,6 +57,7 @@ var tabHeight = 30;
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 var colorscale = d3.scale.category10();
+var mycolor = colorscale(deviceId);
 
 // awareness visualization
 var awarenessViz;
@@ -199,9 +202,15 @@ $(document).ready(function () {
         }
 
         if (queryStacks[deviceId].length > 0) {
+
             createUserfromQueryList(queryStacks[deviceId], deviceId);
+
         } else {
-            createUserfromQueryList("empty", deviceId);
+
+            //createUserfromQueryList("empty", deviceId);
+            scatterplotAwarenessViz.empty(deviceId);
+            parallelAwarenessViz.empty(deviceId);
+
         }
 
     };
@@ -433,94 +442,110 @@ $(document).ready(function () {
 });
 
 function getDataFromQuery(queryList) {
+    
+    if ("initial" in cache && queryList == "empty") {
 
-    $.ajax({
+        handleDatafromQuery(cache["initial"]);
 
-        type: "GET",
-        url: "/getCrimeClustered",
-        data: {
-            data: queryList
-        }
+    } else {
+        $.ajax({
 
-    }).done(function (tempData) {
+            type: "GET",
+            url: "/getCrimeClustered",
+            data: {
+                data: queryList
+            }
 
-        clusteredData = JSON.parse(tempData);
+        }).done(function (tempData) {
 
-        data = clusteredData["data"];
-        clusters = clusteredData["clusters"];
+            handleDatafromQuery(tempData);
 
-        console.log(data);
-        console.log(clusters);
+        });
+    }
 
-        switch (awarenessType) {
-        case 1:
+}
 
-            parallelAwarenessViz = new ParallelCoord({
-                data: data,
-                cols: pAwarenessDimensions
-            });
+function handleDatafromQuery(tempData) {
+    
+    if (!("initial" in cache)) {
+         cache["initial"] = tempData;
+    }
 
-            awarenessViz = parallelAwarenessViz;
+    clusteredData = JSON.parse(tempData);
 
-            break;
+    data = clusteredData["data"];
+    clusters = clusteredData["clusters"];
 
-        case 2:
-            scatterplotAwarenessViz = new ScatterPlot({
-                data: data,
-                cols: sAwarenessDimensions
-            });
+    console.log(data);
+    console.log(clusters);
 
-            awarenessViz = scatterplotAwarenessViz;
+    switch (awarenessType) {
+    case 1:
 
-            break;
+        parallelAwarenessViz = new ParallelCoord({
+            data: data,
+            cols: pAwarenessDimensions
+        });
 
-        case 3:
+        awarenessViz = parallelAwarenessViz;
 
-            awarenessViz = new BaryMap({
-                data: data,
-                cols: awarenessDimensions
-            });
-            break;
+        break;
 
-        case 4:
-            awarenessViz = new RadarPlot({
-                data: data,
-                cols: awarenessDimensions
-            });
-            break;
+    case 2:
+        scatterplotAwarenessViz = new ScatterPlot({
+            data: data,
+            cols: sAwarenessDimensions
+        });
 
+        awarenessViz = scatterplotAwarenessViz;
 
-        case 5:
-            awarenessViz = new PathViewer({
-                data: data,
-                cols: awarenessDimensions
-            });
-            break;
+        break;
 
-        case 6:
-            awarenessViz = new UserMap({
-                data: data,
-                cols: awarenessDimensions
-            });
-            break;
+    case 3:
 
-        default:
-            awarenessViz = new PathViewer({
-                data: data,
-                cols: awarenessDimensions
-            });
-            break;
+        awarenessViz = new BaryMap({
+            data: data,
+            cols: awarenessDimensions
+        });
+        break;
 
-        }
-
-        awarenessViz.createViz(clusters, data);
+    case 4:
+        awarenessViz = new RadarPlot({
+            data: data,
+            cols: awarenessDimensions
+        });
+        break;
 
 
-        //        interactions.forEach(function (d, i) {
-        //            createUserfromQueryList(d.query, 1);
-        //        });
+    case 5:
+        awarenessViz = new PathViewer({
+            data: data,
+            cols: awarenessDimensions
+        });
+        break;
 
-    });
+    case 6:
+        awarenessViz = new UserMap({
+            data: data,
+            cols: awarenessDimensions
+        });
+        break;
+
+    default:
+        awarenessViz = new PathViewer({
+            data: data,
+            cols: awarenessDimensions
+        });
+        break;
+
+    }
+
+    awarenessViz.createViz(clusters, data);
+
+
+    //        interactions.forEach(function (d, i) {
+    //            createUserfromQueryList(d.query, 1);
+    //        });
 
 }
 

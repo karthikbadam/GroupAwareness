@@ -761,7 +761,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                     var aMin = sampled[cMeta[0]];
                     var aMax = sampled[cMeta[cMeta.length - 1]];
-                    var opacity = cMeta.length / sampled.length;
+                    var opacity = cMeta.length / 150;
 
                     var cols = Object.keys(aMin);
 
