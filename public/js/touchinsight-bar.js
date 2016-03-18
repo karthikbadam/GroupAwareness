@@ -32,6 +32,8 @@ function Bar(options) {
 
     _self.parseTime = d3.time.format("%H:%M:%S").parse;
 
+    _self.defaultYDomain = null;
+
     // add a button to parent to open a new dialogue box with more dimensions
     d3.select("#" + _self.parentId).select("header").append("button")
         .attr("class", "mdl-button mdl-button--fab headerButton")
@@ -100,7 +102,7 @@ function Bar(options) {
             var newDimension = dimArray[0];
 
             if (_self.cols.indexOf(newDimension) < 0) {
-                
+
                 d3.select("#" + _self.parentId).selectAll("#" + _self.parentId + "div").remove();
 
                 if (_self.cols.length == 1) {
@@ -142,7 +144,7 @@ function Bar(options) {
             .attr("id", "checkbox-" + variable)
             .attr("class", "checkbox-input");
 
-        //label.append("br");
+        label.append("br");
 
     }
 }
@@ -217,6 +219,8 @@ Bar.prototype.updateVisualization = function (data, rawData) {
         left: 50
     }
 
+
+
     _self.width = _self.optionsWidth - _self.margin.left - _self.margin.right;
 
     _self.actualheight = _self.optionsHeight - _self.margin.top - _self.margin.bottom;
@@ -228,7 +232,7 @@ Bar.prototype.updateVisualization = function (data, rawData) {
         return;
     }
 
-    if (!_self.svg || _self.svg.select("rect").empty()) {
+    if (d3.select("#" + _self.parentId + "bar").empty()) {
 
         _self.cols = [_self.cols[0]];
 
@@ -269,20 +273,27 @@ Bar.prototype.updateVisualization = function (data, rawData) {
             })])
             .range([0, _self.width]);
 
-        _self.y = d3.scale.ordinal()
-            .domain(_self.targetData.map(function (d) {
+        if (_self.defaultYDomain == null) {
+
+            _self.defaultYDomain = _self.targetData.map(function (d) {
                 if (d[_self.cols[0]] != "")
                     return d[_self.cols[0]];
 
-                return 0;
-            }))
+                return null;
+            });
+        }
+
+        _self.y = d3.scale.ordinal()
+            .domain(_self.defaultYDomain)
             .rangeBands([0, _self.height]);
 
         //_self.barH = _self.height / _self.targetData.length;
         _self.barH = 24;
 
         _self.bars = _self.svg.selectAll("g")
-            .data(_self.targetData)
+            .data(_self.targetData, function name(d) {
+                return d[_self.cols[0]];
+            })
             .enter().append("g")
             .attr("transform", function (d, i) {
                 return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
@@ -294,6 +305,7 @@ Bar.prototype.updateVisualization = function (data, rawData) {
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1")
+            .attr("fill-opacity", 1)
             .style("cursor", "pointer")
             .on("click", function () {
 
@@ -307,6 +319,7 @@ Bar.prototype.updateVisualization = function (data, rawData) {
             })
             .attr("y", _self.barH / 3)
             .attr("fill", "#222")
+            .attr("fill-opacity", 1)
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
@@ -342,9 +355,18 @@ Bar.prototype.updateVisualization = function (data, rawData) {
 
     } else {
 
-        var allBars = _self.svg.selectAll("g").data(_self.targetData);
+        var allBars = _self.svg.selectAll("g").data(_self.targetData,
+            function name(d) {
+                return d[_self.cols[0]];
+            });
 
         allBars.exit().remove();
+
+        //        allBars.exit().select("rect").attr("width", 3).attr("fill", "#AAA")
+        //            .attr("fill-opacity", 0.01);
+        //
+        //        allBars.exit().select("text").attr("fill", "#AAA")
+        //            .attr("fill-opacity", 0.01);
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.targetData, function (d) {
@@ -392,24 +414,30 @@ Bar.prototype.updateVisualization = function (data, rawData) {
             })
             .style("pointer-events", "none");
 
-        allBars.select("rect").attr("width", function (d) {
+        allBars.attr("transform", function (d, i) {
+            return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
+        });
+
+        allBars.select("rect")
+            .attr("width", function (d) {
                 return _self.x(Math.pow(d["value"], 1));
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1")
+            .attr("fill-opacity", 1)
             .style("cursor", "pointer")
             .on("click", function () {
-
                 _self.handler(d3.select(this)[0][0].__data__[_self.cols[0]]);
-
             });
 
-        allBars.select("text")
+        allBars
+            .select("text")
             .attr("x", function (d) {
                 return 5;
             })
             .attr("y", _self.barH / 3)
             .attr("fill", "#222")
+            .attr("fill-opacity", 1)
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
@@ -417,9 +445,13 @@ Bar.prototype.updateVisualization = function (data, rawData) {
             });
 
 
-        var allText = _self.svg.selectAll("text.name").data(_self.targetData);
+        var allText = _self.svg.selectAll("text.name").data(_self.targetData,
+            function name(d) {
+                return d[_self.cols[0]];
+            });
 
         allText.exit().remove();
+        //allText.exit().attr("fill", "#AAA").transition().duration(500);
 
         allText.enter().append("text")
             .attr("x", _self.margin.left - 5)
@@ -442,7 +474,8 @@ Bar.prototype.updateVisualization = function (data, rawData) {
 
             });
 
-        allText.attr("x", _self.margin.left - 5)
+        allText
+            .attr("x", _self.margin.left - 5)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })
@@ -486,7 +519,7 @@ Bar.prototype.draw2D = function () {
     var data = processData(_self.rawData, _self.cols[0], _self.cols[1]);
 
     _self.margin = {
-        top: 70,
+        top: crimeMargins[_self.cols[1]],
         right: 10,
         bottom: 30,
         left: 100

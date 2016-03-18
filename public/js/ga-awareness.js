@@ -50,6 +50,20 @@ crimeMeta["neighborhood"] = "Neighborhood";
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
+var crimeMargins = {};
+crimeMargins["id"] = 20;
+crimeMargins["date"] = 120;
+crimeMargins["code"] = 20;
+crimeMargins["time"] = 20;
+crimeMargins["location"] = 120;
+crimeMargins["description"] = 140;
+crimeMargins["weapon"] = 80;
+crimeMargins["post"] = 30;
+crimeMargins["district"] = 80;
+crimeMargins["neighborhood"] = 140;
+crimeMargins["lat"] = 20;
+crimeMargins["lon"] = 20;
+
 var width = 0;
 var height = 0;
 var tabHeight = 30;
@@ -68,7 +82,7 @@ var parallelAwarenessViz = null;
 var scatterplotAwarenessViz = null;
 
 //var awarenessDimensions = [gross, budget, tomatoRating, imdbvotes, sales];
-var pAwarenessDimensions = ["CrimeDate", "CrimeTime", "District", "Description", "Weapon", "Post"];
+var pAwarenessDimensions = ["CrimeDate", "CrimeTime", "District", "Post", "Description", "Weapon"];
 var sAwarenessDimensions = ["CrimeDate", "Description"];
 
 Array.prototype.compare = function (testArr) {

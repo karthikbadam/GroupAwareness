@@ -13,6 +13,20 @@ crimeMeta["neighborhood"] = "Neighborhood";
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
+var crimeMargins = {};
+crimeMargins[crimeMeta["id"]] = 30;
+crimeMargins[crimeMeta["date"]] = 70;
+crimeMargins[crimeMeta["code"]] = 50;
+crimeMargins[crimeMeta["time"]] = 50;
+crimeMargins[crimeMeta["location"]] = 100;
+crimeMargins[crimeMeta["description"]] = 100;
+crimeMargins[crimeMeta["weapon"]] = 80;
+crimeMargins[crimeMeta["post"]] = 30;
+crimeMargins[crimeMeta["district"]] = 80;
+crimeMargins[crimeMeta["neighborhood"]] = 100;
+crimeMargins[crimeMeta["lat"]] = 50;
+crimeMargins[crimeMeta["lon"]] = 50;
+
 var cache = {};
 
 var isNumeric = null;

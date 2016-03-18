@@ -526,7 +526,7 @@ ScatterPlot.prototype.createViz = function (clusters, data) {
         .append("svg")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .style("font-size", "0.6em")
+        .style("font-size", "0.75em")
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 

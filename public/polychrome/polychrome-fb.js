@@ -11,11 +11,13 @@ function Sync(options) {
 
             var data = JSON.parse(JSON.stringify(snapshot.val()));
 
-            if (+data.time > startTime &&
-                deviceId != data.deviceId) {
+            if (+data.time > startTime) {
+                //if (deviceId != data.deviceId) {
 
-                options.callback(data.query,
-                    data.time, data.deviceType, data.deviceId);
+                    options.callback(data.query,
+                        data.time, data.deviceType, data.deviceId);
+
+                //}
             }
 
         });

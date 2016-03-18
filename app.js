@@ -87,14 +87,17 @@ moviesMeta["imdbvotes"] = "IMDB_Votes";
 var crimeMeta = {};
 crimeMeta["id"] = "id";
 crimeMeta["date"] = "CrimeDate";
-crimeMeta["code"] = "CrimeCode";
 crimeMeta["time"] = "CrimeTime";
-crimeMeta["location"] = "Location";
-crimeMeta["description"] = "Description";
-crimeMeta["weapon"] = "Weapon";
-crimeMeta["post"] = "Post";
+
 crimeMeta["district"] = "District";
 crimeMeta["neighborhood"] = "Neighborhood";
+crimeMeta["location"] = "Location";
+crimeMeta["post"] = "Post";
+
+crimeMeta["description"] = "Description";
+crimeMeta["weapon"] = "Weapon";
+crimeMeta["code"] = "CrimeCode";
+
 crimeMeta["lat"] = "Latitude";
 crimeMeta["lon"] = "Longitude";
 
@@ -158,14 +161,14 @@ function initializeCrime(db, callback) {
             var temp = {};
             temp[crimeMeta["id"]] = i;
             temp[crimeMeta["date"]] = parseDate(d[crimeMeta["date"]]).toISOString();
-            temp[crimeMeta["code"]] = d[crimeMeta["code"]];
             temp[crimeMeta["time"]] = d[crimeMeta["time"]];
+            temp[crimeMeta["district"]] = d[crimeMeta["district"]];
+            temp[crimeMeta["neighborhood"]] = d[crimeMeta["neighborhood"]];
+            temp[crimeMeta["post"]] = d[crimeMeta["post"]];
             temp[crimeMeta["location"]] = d[crimeMeta["location"]];
             temp[crimeMeta["description"]] = d[crimeMeta["description"]];
             temp[crimeMeta["weapon"]] = d[crimeMeta["weapon"]];
-            temp[crimeMeta["post"]] = d[crimeMeta["post"]];
-            temp[crimeMeta["district"]] = d[crimeMeta["district"]];
-            temp[crimeMeta["neighborhood"]] = d[crimeMeta["neighborhood"]];
+            temp[crimeMeta["code"]] = d[crimeMeta["code"]];
             temp[crimeMeta["lat"]] = parseFloat(d[crimeMeta["lat"]]);
             temp[crimeMeta["lon"]] = parseFloat(d[crimeMeta["lon"]]);
             i = i + 1;
