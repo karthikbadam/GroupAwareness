@@ -4,7 +4,7 @@ body {
     height: 100%;
     overflow: hidden;
     margin: 0px;
-    font-size: 0.7em;
+    font-size: 0.8em;
     background-color: white;
 }
 
@@ -168,5 +168,9 @@ brush .extent {
 
 .mdl-button--fab.mdl-button--colored {
     color: #fff;
+}
+
+::-webkit-scrollbar { 
+    display: none; 
 }
 

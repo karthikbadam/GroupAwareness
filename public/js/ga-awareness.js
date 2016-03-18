@@ -61,7 +61,7 @@ var mycolor = colorscale(deviceId);
 
 // awareness visualization
 var awarenessViz;
-var awarenessType = 2;
+var awarenessType = 1;
 // 1 for parallel coordinates,  2 for ScatterPlot, 3 for Barycentric, 
 // 4 for radar plot, 5 for user-centered barymap with features
 var parallelAwarenessViz = null;
@@ -155,6 +155,11 @@ function clearQuery(queryStack, query) {
 
 $(document).ready(function () {
 
+    if (window.parent.document.body.id) {
+        deviceId = window.parent.document.body.id;
+    }
+    
+    
     //creating the layout
     width = $("body").width();
     height = $("body").height() - tabHeight;
@@ -208,8 +213,12 @@ $(document).ready(function () {
         } else {
 
             //createUserfromQueryList("empty", deviceId);
-            scatterplotAwarenessViz.empty(deviceId);
-            parallelAwarenessViz.empty(deviceId);
+            
+            if (scatterplotAwarenessViz) 
+                scatterplotAwarenessViz.empty(deviceId);
+            
+            if (parallelAwarenessViz)
+                parallelAwarenessViz.empty(deviceId);
 
         }
 
@@ -221,6 +230,8 @@ $(document).ready(function () {
 
         switch ($(this).html()) {
         case "Parallel Coordinates":
+                
+            awarenessType = 1;
 
             if (parallelAwarenessViz == null) {
 
@@ -231,11 +242,10 @@ $(document).ready(function () {
 
                 parallelAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultData);
 
+            } else {
+
+                parallelAwarenessViz.updateDimensions(pAwarenessDimensions);
             }
-
-            awarenessType = 1;
-
-            parallelAwarenessViz.updateDimensions(pAwarenessDimensions);
 
             var users = Object.keys(awarenessViz.userData);
 
@@ -255,6 +265,8 @@ $(document).ready(function () {
             break;
 
         case "ScatterPlot":
+                
+            awarenessType = 2;
 
             if (scatterplotAwarenessViz == null) {
 
@@ -265,11 +277,10 @@ $(document).ready(function () {
 
                 scatterplotAwarenessViz.createViz(awarenessViz.defaultClusters, awarenessViz.defaultData);
 
+            } else {
+
+                scatterplotAwarenessViz.updateDimensions(sAwarenessDimensions);
             }
-
-            awarenessType = 2;
-
-            scatterplotAwarenessViz.updateDimensions(sAwarenessDimensions);
 
             var users = Object.keys(awarenessViz.userData);
 

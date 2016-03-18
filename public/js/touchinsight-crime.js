@@ -216,6 +216,8 @@ $(document).keypress("u", function (e) {
 });
 
 $(document).ready(function () {
+    
+    $("body").attr("id", deviceId);
 
     //creating the layout
     width = $("#content").width();

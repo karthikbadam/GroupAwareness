@@ -9,9 +9,9 @@ function ParallelCoord(options) {
     _self.cols = options.cols;
 
     _self.margin = {
-        top: 15,
+        top: 20,
         right: 5,
-        bottom: 20,
+        bottom: 25,
         left: 40
     };
 
@@ -235,7 +235,7 @@ ParallelCoord.prototype.updateDimensions = function (cols) {
         .attr("d", function (d) {
             return _self.area(d);
         })
-        .style("fill", "#AAA")
+        .style("fill", "#CCC")
         .style("fill-opacity", 0.05);
 
     paths.exit().remove();
@@ -243,7 +243,7 @@ ParallelCoord.prototype.updateDimensions = function (cols) {
     paths.attr("d", function (d) {
             return _self.area(d);
         })
-        .style("fill", "#AAA")
+        .style("fill", "#CCC")
         .style("fill-opacity", 0.05);
 
     _self.svg.selectAll(".dimension").remove();
@@ -311,7 +311,7 @@ ParallelCoord.prototype.createViz = function (clusters, data) {
     _self.defaultData = data;
 
     var x = _self.x = d3.scale.ordinal()
-        .rangePoints([0, _self.width], 1);
+        .rangePoints([0, _self.width], 0.25);
 
     var y = _self.y = {};
 
@@ -333,7 +333,7 @@ ParallelCoord.prototype.createViz = function (clusters, data) {
         .append("svg")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .style("font-size", "0.6em")
+        .style("font-size", "0.75em")
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 
@@ -442,7 +442,7 @@ ParallelCoord.prototype.createViz = function (clusters, data) {
         .attr("d", function (d) {
             return _self.area(d);
         })
-        .style("fill", "#AAA")
+        .style("fill", "#CCC")
         .style("fill-opacity", 0.05);
 
     //    _self.background = _self.svg.append("g")
@@ -469,7 +469,7 @@ ParallelCoord.prototype.createViz = function (clusters, data) {
     // Add an axis and title.
     _self.g.append("g")
         .attr("class", "axis")
-        .style("fill", "#aaa")
+        .style("fill", "#AAA")
         .each(function (d) {
             
             _self.axis[d] = d3.svg.axis().orient("left").scale(_self.y[d]);

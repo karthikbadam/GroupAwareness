@@ -134,8 +134,7 @@ ScatterPlot.prototype.createUser = function (data, user, clusters) {
 
         _self.hull.datum(customHull(_self.currentClusterData))
             .attr("d", function (d) {
-                console.log(d);
-
+                
                 if (d.length == 0) {
                     _self.svg.append("rect")
                         .attr("class", "hull" + user)
@@ -271,9 +270,6 @@ function processData(data, col1, col2) {
             b["value"]) return 1;
         return -1;
     });
-
-    console.log(returnData);
-
 
     return returnData;
 }

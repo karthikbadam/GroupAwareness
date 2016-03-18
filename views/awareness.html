@@ -46,16 +46,16 @@
     <script src="js/ga-awareness.js"></script>
 
     <ul class="mui-tabs__bar mui-tabs__bar--justified">
-        <li>
+        <li class="mui--is-active">
             <a class="tabs_pane" data-mui-toggle="tab" data-mui-controls="content-parallel">Parallel Coordinates</a>
         </li>
-        <li class="mui--is-active">
+        <li>
             <a class="tabs_pane" data-mui-toggle="tab" data-mui-controls="content-scatterplot">ScatterPlot</a>
         </li>
     </ul>
     <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="settings">Change Dimensions</button>
-    <div class="mui-tabs__pane" id="content-parallel"></div>
-    <div class="mui-tabs__pane mui--is-active" id="content-scatterplot"></div>
+    <div class="mui-tabs__pane mui--is-active" id="content-parallel"></div>
+    <div class="mui-tabs__pane" id="content-scatterplot"></div>
 
     <dialog class="mdl-dialog" id="dimensionsDialog">
         <div class="mdl-dialog__content" id="dimensionsDialogContent">

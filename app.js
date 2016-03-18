@@ -100,6 +100,7 @@ crimeMeta["lon"] = "Longitude";
 
 var parseTime = d3.time.format("%H:%M:%S").parse;
 var parseTime2 = d3.time.format("%H%M").parse;
+var parseTime3 = d3.time.format("%H").parse;
 
 var crimeStream = fs.createReadStream("public/data/crime.csv");
 
@@ -425,6 +426,10 @@ var findDataTypes = function (data) {
         }
     }
 
+    
+    isNumeric[crimeMeta["date"]] = false;
+    isNumeric[crimeMeta["time"]] = false;
+    
     return isNumeric;
 
 }
@@ -472,56 +477,75 @@ var distance = function (a, b) {
                 }
 
 
-//            } else if (key.toLowerCase().indexOf("date") > 0) {
-//
-//                var extent = domain[key][1].getTime() - domain[key][0].getTime();
-//
-//                var val = Math.pow((new Date(a[key]).getTime() -
-//                    new Date(b[key]).getTime()) / extent, 2);
-//
-//                if (checkNumeric(val)) {
-//
-//                    d += val;
-//
-//                }
-//
-//            } else if (key.toLowerCase().indexOf("time") > 0) {
-//
-//                var extent = domain[key][1].getTime() - domain[key][0].getTime();
-//
-//                var timea, timeb;
-//
-//                if (a[key].indexOf(":") < 0) {
-//
-//                    timea = parseTime2(a[key]);
-//
-//                } else {
-//
-//                    timea = parseTime(a[key]);
-//                }
-//
-//                if (b[key].indexOf(":") < 0) {
-//
-//                    timeb = parseTime2(b[key]);
-//
-//                } else {
-//
-//                    timeb = parseTime(b[key]);
-//                }
-//
-//                if (timea != null && timeb != null) {
-//
-//                    var val = Math.pow((timea.getTime() -
-//                        timeb.getTime()) / extent, 2);
-//
-//
-//                    if (checkNumeric(val)) {
-//
-//                        d += val;
-//
-//                    }
-//
-//                }
+            } else if (key.toLowerCase().indexOf("date") > 0) {
+
+                var extent = domain[key][1].getTime() - domain[key][0].getTime();
+
+                var val = Math.pow((new Date(a[key]).getTime() -
+                    new Date(b[key]).getTime()) / extent, 2);
+
+                if (checkNumeric(val)) {
+
+                    d += val;
+
+                }
+
+            } else if (key.toLowerCase().indexOf("time") > 0) {
+
+                var extent = domain[key][1].getTime() - domain[key][0].getTime();
+
+                var timea, timeb;
+
+                if (a[key].indexOf(":") < 0) {
+                    
+                    if (parseTime3(a[key]) != null) {
+                        
+                        timea = parseTime3(a[key]);
+                    
+                    } else {
+
+                        timea = parseTime2(a[key]);
+                        
+                    }
+
+
+                    timea = parseTime2(a[key]);
+
+                } else {
+
+                    timea = parseTime(a[key]);
+                }
+
+                if (b[key].indexOf(":") < 0) {
+                    
+                    if (parseTime3(b[key]) != null) {
+                        
+                        timeb = parseTime3(b[key]);
+                    
+                    } else {
+
+                        timeb = parseTime2(b[key]);
+                        
+                    }
+
+                } else {
+
+                    timeb = parseTime(b[key]);
+                }
+
+                if (timea != null && timeb != null) {
+
+                    var val = Math.pow((timea.getTime() -
+                        timeb.getTime()) / extent, 2);
+
+
+                    if (checkNumeric(val)) {
+
+                        d += val;
+
+                    }
+
+                }
 
             } else {
 
@@ -574,23 +598,24 @@ function centroid(a, input) {
 
                 centroid[key] += parseFloat(datum[key]);
 
-//            } else if (key.toLowerCase().indexOf("date") > 0) {
-//
-//                centroid[key] += new Date(datum[key]).getTime();
-//
-//            } else if (key.toLowerCase().indexOf("time") > 0) {
-//
-//                if (datum[key].indexOf(":") < 0) {
-//                    
-//                    if (parseTime2(datum[key]) != null)
-//                        centroid[key] += parseTime2(datum[key]).getTime();
-//                    
-//                } else {
-//                    
-//                    if (parseTime(datum[key]) != null)
-//                        centroid[key] += parseTime(datum[key]).getTime();
-//                    
-//                }
+            } else if (key.toLowerCase().indexOf("date") > 0) {
+
+                centroid[key] += new Date(datum[key]).getTime();
+
+            } else if (key.toLowerCase().indexOf("time") > 0) {
+
+                if (datum[key].indexOf(":") < 0) {
+
+                    if (parseTime2(datum[key]) != null)
+                        centroid[key] += parseTime2(datum[key]).getTime();
+                    else 
+                        centroid[key] += parseTime3(datum[key]).getTime();
+                    
+                } else {
+
+                    if (parseTime(datum[key]) != null)
+                        centroid[key] += parseTime(datum[key]).getTime();
+                }
 
             } else {
 
@@ -612,23 +637,23 @@ function centroid(a, input) {
 
             centroid[key] = centroid[key] / a.length;
 
-//        } else if (key.toLowerCase().indexOf("date") > 0) {
-//
-//            centroid[key] = centroid[key] / a.length;
-//
-//            var copy = new Date();
-//            copy.setTime(Math.round(centroid[key]));
-//
-//            centroid[key] = copy.toISOString();
-//
-//        } else if (key.toLowerCase().indexOf("time") > 0) {
-//
-//            centroid[key] = centroid[key] / a.length;
-//
-//            var copy = new Date();
-//            copy.setTime(Math.round(centroid[key]));
-//
-//            centroid[key] = "" + copy.getHours() + ":" + copy.getMinutes() + ":" + copy.getSeconds();
+        } else if (key.toLowerCase().indexOf("date") > 0) {
+
+            centroid[key] = centroid[key] / a.length;
+
+            var copy = new Date();
+            copy.setTime(Math.round(centroid[key]));
+
+            centroid[key] = copy.toISOString();
+
+        } else if (key.toLowerCase().indexOf("time") > 0) {
+
+            centroid[key] = centroid[key] / a.length;
+
+            var copy = new Date();
+            copy.setTime(Math.round(centroid[key]));
+
+            centroid[key] = "" + copy.getHours() + ":" + copy.getMinutes() + ":" + copy.getSeconds();
 
         } else {
 
@@ -711,17 +736,23 @@ app.get('/getCrimeClustered', function (req, res, next) {
                             return parseFloat(p[d]);
                         });
 
-//                    } else if (d.toLowerCase().indexOf("date") > 0) {
-//
-//                        domain[d] = d3.extent(data, function (p) {
-//                            return new Date(p[d]);
-//                        });
-//
-//                    } else if (d.toLowerCase().indexOf("time") > 0) {
-//
-//                        domain[d] = d3.extent(data, function (p) {
-//                            return parseTime(p[d]);
-//                        });
+                    } else if (d.toLowerCase().indexOf("date") > 0) {
+
+                        domain[d] = d3.extent(data, function (p) {
+                            return new Date(p[d]);
+                        });
+
+                    } else if (d.toLowerCase().indexOf("time") > 0) {
+                        
+                        domain[d] = d3.extent(data, function (p) {
+                            if (parseTime3(p[d]) != null)
+                                return parseTime3(p[d]);
+                                
+                            if (parseTime2(p[d]) != null)
+                                return parseTime2(p[d]);
+                            
+                            return parseTime(p[d]);
+                        });
 
                     } else {
 
@@ -759,9 +790,10 @@ app.get('/getCrimeClustered', function (req, res, next) {
 
                     var a = [];
 
-                    var aMin = sampled[cMeta[0]];
-                    var aMax = sampled[cMeta[cMeta.length - 1]];
-                    var opacity = cMeta.length / 150;
+                    var aMin = JSON.parse(JSON.stringify(sampled[cMeta[0]]));
+                    var aMax = JSON.parse(JSON.stringify(sampled[cMeta[0]]));
+                    
+                    var opacity = (25 + cMeta.length) / (150 + 70);
 
                     var cols = Object.keys(aMin);
 
@@ -770,7 +802,7 @@ app.get('/getCrimeClustered', function (req, res, next) {
                         var s = sampled[cMeta[i]];
 
                         cols.forEach(function (key) {
-
+                            
                             if (isNumeric[key]) {
 
                                 if (parseFloat(s[key]) <
@@ -788,67 +820,78 @@ app.get('/getCrimeClustered', function (req, res, next) {
                                 }
 
 
-//                            } else if (key.toLowerCase().indexOf("date") > 0) {
-//
-//                                if (new Date(s[key]).getTime() <
-//                                    new Date(aMin[key]).getTime()) {
-//
-//                                    aMin[key] = s[key];
-//
-//                                }
-//
-//                                if (new Date(s[key]).getTime() >
-//                                    new Date(aMax[key]).getTime()) {
-//
-//                                    aMax[key] = s[key];
-//
-//                                }
-//
-//                            } else if (key.toLowerCase().indexOf("time") > 0) {
-//
-//                                var stime, minTime, maxTime;
-//
-//                                if (s[key].indexOf(":") < 0) {
-//
-//                                    stime = parseTime2(s[key]);
-//
-//                                } else {
-//
-//                                    stime = parseTime(s[key]);
-//                                }
-//
-//                                if (aMin[key].indexOf(":") < 0) {
-//
-//                                    minTime = parseTime2(aMin[key]);
-//
-//                                } else {
-//
-//                                    minTime = parseTime(aMin[key]);
-//                                }
-//
-//                                if (aMax[key].indexOf(":") < 0) {
-//
-//                                    maxTime = parseTime2(aMax[key]);
-//
-//                                } else {
-//
-//                                    maxTime = parseTime(aMax[key]);
-//                                }
-//
-//                                if (stime!= null && minTime != null && 
-//                                    stime.getTime() < minTime.getTime()) {
-//
-//                                    aMin[key] = s[key];
-//                                }
-//
-//                                if (stime!= null && maxTime != null && 
-//                                    stime.getTime() > maxTime.getTime()) {
-//
-//                                    aMax[key] = s[key];
-//                                }
+                            } else if (key.toLowerCase().indexOf("date") > 0) {
 
+                                if (new Date(s[key]).getTime() <
+                                    new Date(aMin[key]).getTime()) {
+
+                                    aMin[key] = s[key];
+
+                                }
+
+                                if (new Date(s[key]).getTime() >
+                                    new Date(aMax[key]).getTime()) {
+
+                                    aMax[key] = s[key];
+
+                                }
+
+                            } else if (key.toLowerCase().indexOf("time") > 0) {
+
+                                var stime, minTime, maxTime;
+
+                                if (s[key].indexOf(":") < 0) {
+                                    
+                                    if (parseTime2(s[key]) != null)
+                                        stime = parseTime2(s[key]);
+                                    else 
+                                        stime = parseTime3(s[key]);
+
+                                } else {
+
+                                    stime = parseTime(s[key]);
+                                }
+
+                                if (aMin[key].indexOf(":") < 0) {
+                                    
+                                    if (parseTime2(aMin[key]) != null)
+                                        minTime = parseTime2(aMin[key]);
+                                    else 
+                                        minTime = parseTime3(aMin[key]);
+
+                                } else {
+
+                                    minTime = parseTime(aMin[key]);
+                                }
+
+                                if (aMax[key].indexOf(":") < 0) {
+                                    
+                                    if (parseTime2(aMax[key]) != null)
+                                        maxTime = parseTime2(aMax[key]);
+                                    else 
+                                        maxTime = parseTime3(aMax[key]);
+                                    
+                                } else {
+
+                                    maxTime = parseTime(aMax[key]);
+                                }
+
+                                if (stime != null && minTime != null &&
+                                    stime.getTime() <= minTime.getTime()) {
+                                    
+                                    aMin[key] = stime.getHours() + ":" + 
+                                        stime.getMinutes() + ":" + stime.getSeconds();
+                                }
+
+                                if (stime != null && maxTime != null &&
+                                    stime.getTime() >= maxTime.getTime()) {
+
+                                    aMax[key] = stime.getHours() + ":" + 
+                                        stime.getMinutes() + ":" + stime.getSeconds();
+                                }
+                                
+                                
                             } else {
-
 
                                 var sloc = reverse[key][s[key]];
                                 var minloc = reverse[key][aMin[key]];
