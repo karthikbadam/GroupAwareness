@@ -82,7 +82,7 @@ var parallelAwarenessViz = null;
 var scatterplotAwarenessViz = null;
 
 //var awarenessDimensions = [gross, budget, tomatoRating, imdbvotes, sales];
-var pAwarenessDimensions = ["CrimeDate", "CrimeTime", "District", "Post", "Description", "Weapon"];
+var pAwarenessDimensions = ["CrimeDate", "CrimeTime", "District", "Neighborhood", "Post", "Description", "Weapon", "CrimeCode"];
 var sAwarenessDimensions = ["CrimeDate", "Description"];
 
 Array.prototype.compare = function (testArr) {
