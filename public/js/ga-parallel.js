@@ -236,7 +236,7 @@ ParallelCoord.prototype.updateDimensions = function (cols) {
             return _self.area(d);
         })
         .style("fill", "#CCC")
-        .style("fill-opacity", 0.05);
+        .style("fill-opacity", 0.1);
 
     paths.exit().remove();
 
@@ -244,7 +244,7 @@ ParallelCoord.prototype.updateDimensions = function (cols) {
             return _self.area(d);
         })
         .style("fill", "#CCC")
-        .style("fill-opacity", 0.05);
+        .style("fill-opacity", 0.1);
 
     _self.svg.selectAll(".dimension").remove();
 
@@ -443,7 +443,7 @@ ParallelCoord.prototype.createViz = function (clusters, data) {
             return _self.area(d);
         })
         .style("fill", "#CCC")
-        .style("fill-opacity", 0.05);
+        .style("fill-opacity", 0.1);
 
     //    _self.background = _self.svg.append("g")
     //            .attr("class", "background")
